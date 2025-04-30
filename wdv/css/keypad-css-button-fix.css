@@ -1,0 +1,58 @@
+/* Simplified bottom buttons styling */
+.bottom-buttons {
+  position: static;
+  margin: 30px 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border-top: none;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.bottom-buttons button {
+  flex: 1;
+  padding: 12px 5px;
+  font-size: 0.95em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Ensure button colors are maintained */
+#reset-button { background-color: #d9534f; color: white; }
+#copy-totals-button { background-color: #28a745; color: white; }
+#sms-button { background-color: #007bff; color: white; }
+#mail-button { background-color: #6f42c1; color: white; }
+
+/* Make sure 4 and 3 on black background have white text */
+td.score-4, td.score-3 {
+  background-color: #333333 !important;
+  color: white !important;
+}
+
+/* Make sure keypad buttons for 4 and 3 have white text */
+#score-keypad button[data-value="4"],
+#score-keypad button[data-value="3"] {
+  background-color: #333333 !important;
+  color: white !important;
+  border-color: #1a1a1a;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .bottom-buttons {
+    margin: 20px 0;
+    gap: 5px;
+  }
+  
+  .bottom-buttons button {
+    font-size: 0.85em;
+    padding: 10px 2px;
+  }
+}

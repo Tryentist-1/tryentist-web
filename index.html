@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tryentist.com - Let's Try It!</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Steampunk Theme --- */
+        :root {
+            --bg-color: #fdf6e3; /* Aged Paper / Solarized Light */
+            --text-color: #583e2e; /* Dark Sepia/Brown */
+            --header-color: #8b4513; /* Saddle Brown / Dark Wood */
+            --accent-color: #b58900; /* Brass/Gold */
+            --accent-darker: #8c6d00; /* Darker Brass */
+            --overlay-bg: rgba(40, 30, 20, 0.5); /* Dark Brown Overlay */
+            --text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+
+            --heading-font: 'Roboto Slab', serif;
+            --body-font: 'Roboto', sans-serif;
+        }
+
+        /* Basic Reset & Defaults */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--body-font);
+            line-height: 1.7;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px; /* Base font size */
+        }
+
+        /* Container for centering content */
+        .container {
+            max-width: 850px; /* Slightly wider */
+            margin: 0 auto; /* Center horizontally, no top/bottom margin */
+            background-color: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); /* Softer shadow */
+        }
+
+        /* Content Padding */
+        .content-padding {
+             padding: 25px 40px; /* Padding inside content areas */
+        }
+
+
+        /* Header Styles (Optional Simple Header) */
+        .main-header {
+            padding: 15px 40px;
+            background-color: rgba(233, 226, 209, 0.8); /* Lighter tan overlay */
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+         }
+         .main-header h2 { /* Using H2 for secondary title */
+             font-family: var(--heading-font);
+             color: var(--header-color);
+             margin: 0;
+             font-weight: 400;
+         }
+
+
+        /* --- Parallax Section --- */
+        .parallax-section {
+            /* The image URL */
+            background-image: url('https://tryentist.com/images/tryentist-avatar.jpg');
+
+            /* Set a specific height */
+            min-height: 450px; /* Adjust as needed */
+
+            /* Create the parallax scrolling effect */
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+            /* Needed for positioning the text overlay */
+            position: relative;
+        }
+
+        .parallax-content {
+            /* Full overlay */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            /* Centering text */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            /* Text styling */
+            text-align: center;
+            color: white;
+            background-color: var(--overlay-bg); /* Dark overlay for contrast */
+            padding: 20px;
+        }
+
+        .parallax-content h1 { /* Site Title */
+            font-family: var(--heading-font);
+            font-size: 3.5em; /* Larger title */
+            margin-bottom: 0.1em;
+            color: #fff; /* White text */
+            text-shadow: var(--text-shadow);
+            font-weight: 700;
+        }
+
+        .parallax-content .tagline { /* Tagline */
+            font-family: var(--heading-font);
+            font-size: 1.8em; /* Prominent tagline */
+            color: #eee; /* Slightly off-white */
+            margin-top: 0;
+            font-weight: 400;
+            text-shadow: var(--text-shadow);
+        }
+
+        /* Main Content Styles */
+        main p {
+            margin-bottom: 1.5em;
+            font-size: 1.05em; /* Slightly larger body text */
+        }
+
+        /* --- Archery Score Section --- */
+        .project-section {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(233, 226, 209, 0.5); /* Light tan background */
+            border: 1px solid #d1c7b0; /* Tan border */
+            text-align: center;
+        }
+
+        .project-section h3 {
+            font-family: var(--heading-font);
+            color: var(--header-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .project-section img {
+            max-width: 80%; /* Limit screenshot size slightly */
+            height: auto;
+            border: 3px solid var(--text-color); /* Dark border around screenshot */
+            margin: 10px auto;
+            display: block;
+        }
+
+        .project-section .caption {
+            font-size: 0.9em;
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+
+        .project-section a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 15px;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            font-family: var(--heading-font);
+            border-radius: 3px;
+            transition: background-color 0.3s ease;
+        }
+        .project-section a:hover {
+            background-color: var(--accent-darker);
+        }
+
+
+        /* Footer Styles */
+        footer {
+            margin-top: 0; /* Remove margin since it's inside container */
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+            border-top: 1px dashed #c1b7a0; /* Dashed border */
+            padding: 20px 40px;
+        }
+
+        footer a {
+            color: var(--accent-color); /* Brass link color */
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer a:hover {
+            text-decoration: underline;
+            color: var(--accent-darker);
+        }
+        footer .attribution {
+            margin-top: 15px;
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        /* Basic Responsive Image Handling */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Media Query for slightly larger screens if needed */
+        @media (min-width: 600px) {
+            body { font-size: 17px; } /* Slightly larger base font on desktop */
+            .parallax-content h1 { font-size: 4em; }
+            .parallax-content .tagline { font-size: 2em; }
+        }
+/* --- Responsive Adjustments --- */
+        @media (max-width: 768px) { /* Target tablets and phones */
+            .parallax-section {
+                /* Disable fixed attachment on smaller screens */
+                background-attachment: scroll;
+
+                /* Optional: Slightly adjust vertical position if needed */
+                /* background-position: center 40%; */ /* Pulls image slightly 'up' if needed */
+            }
+
+            /* Make text slightly smaller on mobile for readability */
+            body {
+                font-size: 15px;
+            }
+             .parallax-content h1 {
+                font-size: 2.8em; /* Adjust title size */
+            }
+            .parallax-content .tagline {
+                font-size: 1.6em; /* Adjust tagline size */
+            }
+            .content-padding {
+                padding: 20px 20px; /* Reduce padding slightly */
+            }
+             .project-section img {
+                 max-width: 90%; /* Adjust screenshot size if needed */
+            }
+
+            /* Handling Buttons on Mobile: */
+            /* p5.js .position() sets inline styles (left: ...px), making CSS overrides tricky */
+            /* Easiest option is often to let them be positioned by the existing logic, */
+            /* they might just appear closer together. Stacking requires JS changes or !important CSS */
+
+        }
+
+        @media (max-width: 480px) { /* Further adjustments for small phones */
+             .parallax-content h1 {
+                font-size: 2.2em;
+            }
+            .parallax-content .tagline {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <header class="main-header">
+            <h2>Terry's AI Expedition Logbook</h2>
+        </header>
+
+        <div class="parallax-section">
+            <div class="parallax-content">
+                <h1>Tryentist.com</h1>
+                <p class="tagline">Let's Try It!</p>
+            </div>
+        </div>
+
+        <main class="content-padding">
+            <p>Welcome! If you know me, you know I love diving into things – whether it's the rules of D&D, the physics of archery, the vibes of a live show, or the collaborative spirit of Burning Man. My latest deep dive? The fascinating, sometimes strange, always evolving universe of AI.</p>
+
+            <p>This site is currently my basecamp for that expedition. As a long-time tech enthusiast and sci-fi/fantasy fan, I'm exploring how these new AI tools actually work, what they can create, and where they might take us. It's part world-building, part coding, part pure experimentation.</p>
+
+            <p>Forget polished corporate techno babble. Expect hands-on projects, half-baked ideas, code that <em>mostly</em> works (check out the Archery Scorer below!), and honest thoughts as I try things out. Think of it like setting up camp on the digital playa – focused on the build, the process, and seeing what cool stuff emerges from the dust.</p>
+
+            <p>So, pull up a virtual laboratory stool and watch the process unfold. It's bound to be an interesting trip. If you are a Tryentist too, ping me and let me know so we can compare notes!</p>
+        </main>
+
+        <section class="project-section">
+            <h3>Featured Experiment: AI-Assisted Creation</h3>
+
+            <img src="https://tryentist.com/images/interactive.png" alt="Screenshot of the AI-assisted Olympic Archery Scorer App">
+
+            <p class="caption">Example: The interactive Olympic Archery Scorer, built using p5.js with significant code generation assistance from Google Gemini.
+            I created the first version of the app with a single prompt and in less than an hour of revisions with just comments back and forth I created the version below to use with my archers. The visual interface lets you see how your arrows are grouping, and what your score could be if you can get your group to be centered on the bullseye. I have wanted something like this for literally 20 years and today I made it in less than 30 minutes.</p>
+
+            <a href="https://tryentist.com/wdv/gemini-oneshot.html" target="_blank" rel="noopener noreferrer">Try the Archery Scorer Here</a>
+
+           <h3>Another Vibe Coding Experiment:  Scoring for Olympic Archery in Schools</h3>
+
+            <img src="https://tryentist.com/images/OAS-Sheets.png" alt="Screenshot of the AI-assisted Olympic Archery Scorer App">
+
+            <p class="caption">Example: I built this suite of apps using Gemini, Grok, and Claude using sometimes just prompting, and now integrated to command line tools and GitHub.</p>
+
+            <a href="https://tryentist.com/wdv/index.html" target="_blank" rel="noopener noreferrer">OAS Tournament Scoring</a>
+
+        </section>
+        
+        
+
+
+        <footer class="content-padding">
+             <p><a href="https://Tryentist.com/index.php">Link to the Old Tryentist Site Archive</a></p>
+            <p class="attribution">Homepage prompted by Tryentist and built with Gemini AI (<span id="currentDate"></span>).</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Simple script to update the date in the footer
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString(undefined, options);
+    </script>
+
+</body>
+</html>

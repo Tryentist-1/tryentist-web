@@ -1,0 +1,23 @@
+# macOS Finder files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS Thumbnails
+._*
+
+# Build Folders (Uncomment if you ever have build output)
+# build/
+# dist/
+
+# Dependency directories (like for Node.js, uncomment if needed)
+# node_modules/
+
+# Editor specific settings (Optional)
+# .vscode/
+# *.sublime-workspace
+# .idea/
+
+# Other common temp/log files (Optional)
+# *.log
+# *.tmp

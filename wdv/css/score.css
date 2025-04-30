@@ -1,0 +1,315 @@
+/* Universal Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* General Styles - User's Reverted Version */
+body {
+  font-family: Arial, sans-serif; /* User's font */
+  background-color: #f9f9f9; /* User's background */
+  overflow-x: hidden;
+  /* Consider adding line-height: 1.5; from common_styles_css if desired */
+}
+.container { /* Assuming this wraps content in ranking round HTML */
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  min-height: 100vh;
+  position: relative;
+}
+h1, h2, h3 {
+  text-align: center;
+  margin: 10px 0;
+  padding: 0;
+  font-size: 1.2em;
+  /* Consider color: #0056b3; for h1 from common_styles_css if desired */
+}
+
+/* Tabs Styles (Used by ranking rounds, maybe not team round) */
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  border-bottom: 2px solid #ccc;
+  width: 100%;
+}
+.tab {
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+  flex-grow: 1;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  transition: background-color 0.3s;
+  white-space: nowrap;
+  min-width: 100px;
+}
+.tab-1 { background-color: #007BFF; }
+.tab-2 { background-color: #FF5733; }
+.tab-3 { background-color: #28A745; }
+.tab-4 { background-color: #FFC300; }
+.active-tab {
+  font-weight: bold;
+  border-bottom: 5px solid;
+}
+.tab-1.active-tab { border-bottom-color: #007BFF; }
+.tab-2.active-tab { border-bottom-color: #FF5733; }
+.tab-3.active-tab { border-bottom-color: #28A745; }
+.tab-4.active-tab { border-bottom-color: #FFC300; }
+
+/* Table Styles - Based on User's Provided CSS */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  /* Note: common_styles_css had background-color, box-shadow */
+}
+th, td {
+  border: 1px solid #ddd; /* User's border */
+  padding: 5px; /* User's padding */
+  text-align: center;
+  font-size: 0.9em; /* User's font size */
+  vertical-align: middle; /* Added from common_styles_css */
+}
+th, .round-header, .r-column { /* .round-header, .r-column specific to ranking? */
+  background-color: #ccc; /* User's header background */
+}
+.calculated-cell { /* Specific to ranking? */
+  background-color: #e0e0e0;
+}
+.total-row td { /* Specific to ranking? */
+  background-color: #fff;
+  font-weight: bold;
+}
+
+/* Highlighted Row (Used by ranking rounds?) */
+.highlight {
+  background-color: #ffffcc;
+}
+
+/* (Removed Scores Header Section & Edit Button Styles) */
+/*
+.scores-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px 10px;
+  background-color: #007BFF;
+}
+.scores-header h2 {
+  margin: 0;
+  margin-right: 15px;
+  font-size: 1.1em;
+}
+.edit-name-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 0.9em;
+}
+*/
+
+/* Bottom Buttons (Used by ranking rounds?) */
+.bottom-buttons {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+}
+.bottom-buttons button {
+  flex: 1;
+  padding: 10px 15px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 120px;
+}
+/* Specific button colors from user's CSS */
+#reset-button { background-color: #d9534f; color: white; }
+#copy-totals-button { background-color: #28a745; color: white; }
+#sms-button { background-color: #007bff; color: white; }
+#mail-button { background-color: #6f42c1; color: white; }
+/* Note: The .controls button style from common_styles_css might be useful
+   if the team round uses different buttons/location */
+
+/* Form Elements (Select specific to ranking rounds) */
+select {
+  font-size: 1em;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  min-width: 60px;
+}
+input[type="text"] { /* General text input style from user's reverted code */
+  font-size: 1em;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%; /* Default to full width */
+  margin-top: 5px;   /* Added margin from user's code */
+  margin-bottom: 10px;/* Added margin from user's code */
+  box-sizing: border-box; /* Good practice */
+  text-align: center; /* Added from previous merge attempt */
+}
+
+/* Notes Section Styling (Adopted from previous merge attempt) */
+.notes-section { margin-top: 20px; }
+.notes-section h3 { margin-bottom: 5px; color: #495057; text-align: left; } /* Align left */
+.notes-section textarea {
+    width: 95%;
+    max-width: 600px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 0.95em;
+    min-height: 60px;
+ }
+
+
+/* Enhanced Reset Modal */
+.modal {
+  display: none; /* Initially hidden */
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7); /* Semi-transparent background */
+  /* animation: fadeIn 0.3s ease; */ /* ***** THIS LINE IS COMMENTED OUT ***** */
+}
+
+/* Keep the keyframes definition for now, just remove the application */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  animation: slideDown 0.3s ease; /* Slide down animation still applied */
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 12px 20px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+#modal-cancel {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+#modal-reset {
+  background-color: #d9534f;
+  color: #fff;
+}
+
+#modal-sample {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.modal-buttons button:hover {
+  transform: scale(1.05);
+}
+
+.modal-buttons button:active {
+  transform: scale(1);
+}
+
+/* Setup Modal Styling */
+#setup-modal .modal-content { /* ... (user's setup modal styles) ... */ }
+#setup-modal fieldset { /* ... (user's setup modal styles) ... */ }
+#setup-modal legend { /* ... (user's setup modal styles) ... */ }
+#setup-modal label { /* ... (user's setup modal styles) ... */ }
+#setup-modal input[type="text"],
+#setup-modal select { /* ... (user's setup modal styles) ... */ }
+#setup-modal .modal-buttons { /* ... (user's setup modal styles) ... */ }
+#setup-modal .modal-buttons button { /* ... (user's setup modal styles) ... */ }
+#setup-modal .modal-buttons button:hover { /* ... (user's setup modal styles) ... */ }
+#setup-modal .row { /* ... (user's setup modal styles) ... */ }
+#setup-modal .small-field { /* ... (user's setup modal styles) ... */ }
+#setup-modal .row-field { /* ... (user's setup modal styles) ... */ }
+
+
+/* Conditional Formatting */
+.avg-1-2 { background-color: white; color: black; }
+.avg-3-4 { background-color: darkgrey; color: white; }
+.avg-5-6 { background-color: blue; color: white; }
+.avg-7-8 { background-color: red; color: white; }
+.avg-9-up { background-color: gold; color: black; }
+
+/* Basic invalid input highlight (Adopted from previous merge attempt) */
+input.invalid, /* Add class via JS */
+input:invalid { /* Basic HTML5 validation */
+     background-color: #ffdddd !important;
+     border-color: #dc3545 !important; /* Use important if needed */
+}
+
+/* Basic HR style (Adopted from previous merge attempt) */
+hr { border: none; border-top: 1px solid #dee2e6; margin: 20px 0; }
+
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container, .tabs, .bottom-buttons, table {
+    width: 100%;
+    max-width: 600px;
+  }
+   /* User's specific responsive rules */
+  .bottom-buttons {
+    font-size: 0.9em;
+  }
+   /* General responsive rules */
+   body { padding: 10px; }
+   h1 { font-size: 1.5em; }
+   th, td { font-size: 0.8em; padding: 4px 2px; } /* Adjust base table styles */
+}
+

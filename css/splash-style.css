@@ -1,0 +1,240 @@
+/* --- Steampunk Theme --- */
+:root {
+    --bg-color: #fdf6e3; /* Aged Paper / Solarized Light */
+    --text-color: #583e2e; /* Dark Sepia/Brown */
+    --header-color: #8b4513; /* Saddle Brown / Dark Wood */
+    --accent-color: #b58900; /* Brass/Gold */
+    --accent-darker: #8c6d00; /* Darker Brass */
+    --overlay-bg: rgba(40, 30, 20, 0.5); /* Dark Brown Overlay */
+    --text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+
+    --heading-font: 'Roboto Slab', serif;
+    --body-font: 'Roboto', sans-serif;
+}
+
+/* Basic Reset & Defaults */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--body-font);
+    line-height: 1.7;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 16px; /* Base font size */
+}
+
+/* Container for centering content */
+.container {
+    max-width: 850px; /* Slightly wider */
+    margin: 0 auto; /* Center horizontally, no top/bottom margin */
+    background-color: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
+    box-shadow: 0 0 15px rgba(0,0,0,0.2); /* Softer shadow */
+}
+
+/* Content Padding */
+.content-padding {
+     padding: 25px 40px; /* Padding inside content areas */
+}
+
+
+/* Header Styles (Optional Simple Header) */
+.main-header {
+    padding: 15px 40px;
+    background-color: rgba(233, 226, 209, 0.8); /* Lighter tan overlay */
+    text-align: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+ }
+ .main-header h2 { /* Using H2 for secondary title */
+     font-family: var(--heading-font);
+     color: var(--header-color);
+     margin: 0;
+     font-weight: 400;
+ }
+
+
+/* --- Parallax Section --- */
+.parallax-section {
+    /* The image URL */
+    background-image: url('https://tryentist.com/images/tryentist-avatar.jpg');
+
+    /* Set a specific height */
+    min-height: 450px; /* Adjust as needed */
+
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    /* Needed for positioning the text overlay */
+    position: relative;
+}
+
+.parallax-content {
+    /* Full overlay */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    /* Centering text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* Text styling */
+    text-align: center;
+    color: white;
+    background-color: var(--overlay-bg); /* Dark overlay for contrast */
+    padding: 20px;
+}
+
+.parallax-content h1 { /* Site Title */
+    font-family: var(--heading-font);
+    font-size: 3.5em; /* Larger title */
+    margin-bottom: 0.1em;
+    color: #fff; /* White text */
+    text-shadow: var(--text-shadow);
+    font-weight: 700;
+}
+
+.parallax-content .tagline { /* Tagline */
+    font-family: var(--heading-font);
+    font-size: 1.8em; /* Prominent tagline */
+    color: #eee; /* Slightly off-white */
+    margin-top: 0;
+    font-weight: 400;
+    text-shadow: var(--text-shadow);
+}
+
+/* Main Content Styles */
+main p {
+    margin-bottom: 1.5em;
+    font-size: 1.05em; /* Slightly larger body text */
+}
+
+/* --- Project Section --- */
+.project-section {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: rgba(233, 226, 209, 0.5); /* Light tan background */
+    border: 1px solid #d1c7b0; /* Tan border */
+    text-align: center;
+}
+
+.project-section h3 {
+    font-family: var(--heading-font);
+    color: var(--header-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.project-section img {
+    max-width: 80%; /* Limit screenshot size slightly */
+    height: auto;
+    border: 3px solid var(--text-color); /* Dark border around screenshot */
+    margin: 10px auto;
+    display: block;
+}
+
+.project-section .caption {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-top: 10px;
+    text-align: left; /* Align caption text left for readability */
+    max-width: 80%;   /* Match image width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.project-section a {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 15px;
+    background-color: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    font-family: var(--heading-font);
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+.project-section a:hover {
+    background-color: var(--accent-darker);
+}
+
+
+/* Footer Styles */
+footer {
+    margin-top: 0; /* Remove margin since it's inside container */
+    text-align: center;
+    font-size: 0.9em;
+    color: #777;
+    border-top: 1px dashed #c1b7a0; /* Dashed border */
+    padding: 20px 40px;
+}
+
+footer a {
+    color: var(--accent-color); /* Brass link color */
+    text-decoration: none;
+    font-weight: bold;
+}
+footer a:hover {
+    text-decoration: underline;
+    color: var(--accent-darker);
+}
+footer .attribution {
+    margin-top: 15px;
+    font-size: 0.8em;
+    color: #999;
+}
+
+/* Basic Responsive Image Handling */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Media Query for slightly larger screens if needed */
+@media (min-width: 600px) {
+    body { font-size: 17px; } /* Slightly larger base font on desktop */
+    .parallax-content h1 { font-size: 4em; }
+    .parallax-content .tagline { font-size: 2em; }
+}
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) { /* Target tablets and phones */
+    .parallax-section {
+        /* Disable fixed attachment on smaller screens for better performance/compatibility */
+        background-attachment: scroll;
+    }
+
+    /* Make text slightly smaller on mobile for readability */
+    body {
+        font-size: 15px;
+    }
+     .parallax-content h1 {
+        font-size: 2.8em; /* Adjust title size */
+    }
+    .parallax-content .tagline {
+        font-size: 1.6em; /* Adjust tagline size */
+    }
+    .content-padding {
+        padding: 20px 20px; /* Reduce padding slightly */
+    }
+     .project-section img,
+     .project-section .caption {
+         max-width: 90%; /* Adjust image and caption width */
+    }
+}
+
+@media (max-width: 480px) { /* Further adjustments for small phones */
+     .parallax-content h1 {
+        font-size: 2.2em;
+    }
+    .parallax-content .tagline {
+        font-size: 1.3em;
+    }
+}

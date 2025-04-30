@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WDV 360 Score</title>
+  <link rel="stylesheet" href="css/score.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 id="main-title">WDV Scorecard - 360 Round</h1>
+    <div id="tabs" class="tabs"></div>
+    <div id="tabs-container"></div>
+  <div id="all-totals" class="all-totals">
+  <h3>Running Totals for All Archers</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Archer</th>
+        <th>School</th>
+        <th>Gender</th>
+        <th>Team</th>
+        <th>10s</th>
+        <th>Xs</th>
+        <th>Score</th>
+        <th>Avg</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="total-scores"></tbody>
+  </table>
+</div>
+
+  </div>
+
+  <div class="bottom-buttons">
+    <button id="reset-button">RESET</button>
+    <button id="copy-totals-button">COPY</button>
+    <button id="sms-button">SMS</button>
+    <button id="mail-button">MAIL</button>
+  </div>
+
+  <div id="reset-modal" class="modal">
+    <div class="modal-content">
+      <h2>Reset Options</h2>
+      <div class="modal-buttons">
+        <button id="modal-cancel">Cancel</button>
+        <button id="modal-reset">Reset</button>
+        <button id="modal-sample">Sample</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config for JS -->
+  <script>
+    const initConfig = {
+      round: "360",
+      school: "WDV",
+      archerCount: 4,
+      defaultArcherNames: ["Archer 1", "Archer 2", "Archer 3", "Archer 4"]
+    };
+  </script>
+
+  <!-- Main script -->
+  <script src="js/score.js"></script>
+</body>
+</html>
