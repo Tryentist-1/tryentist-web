@@ -95,37 +95,38 @@
 
 // =================== DRAW ===================
 function draw() {
-  background(240); // Light grey background
+    background(240); // Light grey background
 
-  // --- ADD THIS VERSION MARKER CODE HERE ---
-  fill(0, 100, 0); // Dark green text
-  textSize(10);
-  textAlign(LEFT, TOP); // Align top-left for the marker
-  text("Version: TouchFix 1.0", 5, 5); // Display version text at coordinates (5, 5)
-  // --- END OF VERSION MARKER CODE ---
+    // --- ADD THIS VERSION MARKER CODE HERE ---
+    fill(0, 100, 0); // Dark green text
+    textSize(10);
+    textAlign(LEFT, TOP); // Align top-left for the marker
+    text("Version: TouchFix 1.0", 5, 5); // Display version text at coordinates (5, 5)
+    // --- END OF VERSION MARKER CODE ---
 
-  // Reset alignment if other parts of draw need it different
-  textAlign(CENTER, TOP); // Assuming you need centered text for displayCurrentStatus
+    // Reset alignment if other parts of draw need it different
+    textAlign(CENTER, TOP); // Assuming you need centered text for displayCurrentStatus
 
-  // --- Now call your other drawing functions ---
-  displayCurrentStatus(); // Show current end/arrow or correction mode
-  drawTarget();           // Draw the target face
-  drawArrowMarkers();     // Draw existing arrow markers
-  drawAveragePosition();  // Draw the average group position (if applicable)
-  displayScoreboard();    // Display the end scores
+    // --- Now call your other drawing functions ---
+    displayCurrentStatus(); // Show current end/arrow or correction mode
+    drawTarget();           // Draw the target face
+    drawArrowMarkers();     // Draw existing arrow markers
+    drawAveragePosition();  // Draw the average group position (if applicable)
+    displayScoreboard();    // Display the end scores
 
-  // Check if match is over after drawing everything
-  if (matchOver && !isLooping()) {
-      displayEndOfMatchAnalysis(); // Show final stats if match is over
-      if (saveButton) saveButton.show(); // Show save button
-      noLoop(); // Stop the draw loop
-  } else if (!isLooping() && isCorrectionMode) {
-      // If in correction mode but loop stopped, p5.js usually waits for next event
-  } else if (!isLooping()) {
-      // If loop stopped for other reasons (e.g., initial load), redraw ensures one frame
-      redraw();
-  }
+    // Check if match is over after drawing everything
+    if (matchOver && !isLooping()) {
+        displayEndOfMatchAnalysis(); // Show final stats if match is over
+        if (saveButton) saveButton.show(); // Show save button
+        noLoop(); // Stop the draw loop
+    } else if (!isLooping() && isCorrectionMode) {
+        // If in correction mode but loop stopped, p5.js usually waits for next event
+    } else if (!isLooping()) {
+        // If loop stopped for other reasons (e.g., initial load), redraw ensures one frame
+        redraw();
+    }
 } // <-- This is the closing brace for the main draw() function
+
 
     // =================== EVENT HANDLERS ===================
 
