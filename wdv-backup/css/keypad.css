@@ -1,0 +1,161 @@
+/* Main keypad container */
+#score-keypad {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+    z-index: 2500;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+/* General keypad button style */
+#score-keypad button {
+    padding: 15px 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #5a6268;
+    color: white;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#score-keypad button:active {
+    background-color: #495057;
+}
+
+/* Score value button colors - match table cell colors */
+#score-keypad button[data-value="X"],
+#score-keypad button[data-value="10"],
+#score-keypad button[data-value="9"] {
+    background-color: #FFCC00;
+    color: black;
+    border-color: #cca300;
+}
+
+#score-keypad button[data-value="8"],
+#score-keypad button[data-value="7"] {
+    background-color: #DD0000;
+    color: white;
+    border-color: #b00000;
+}
+
+#score-keypad button[data-value="6"],
+#score-keypad button[data-value="5"] {
+    background-color: #66CCFF;
+    color: black;
+    border-color: #4aa0cc;
+}
+
+#score-keypad button[data-value="4"],
+#score-keypad button[data-value="3"] {
+    background-color: #333333;
+    color: white;
+    border-color: #1a1a1a;
+}
+
+#score-keypad button[data-value="2"],
+#score-keypad button[data-value="1"] {
+    background-color: #FFFFFF;
+    color: black;
+    border-color: #cccccc;
+}
+
+#score-keypad button[data-value="M"] {
+    background-color: #FFFFFF;
+    color: #adb5bd;
+    border-color: #cccccc;
+}
+
+/* Action button colors */
+#score-keypad button.keypad-action {
+    background-color: #ffc107;
+    color: black;
+    font-size: 1em;
+}
+
+#score-keypad button.keypad-action-next {
+    background-color: #28a745;
+    color: white;
+}
+
+#score-keypad button.keypad-action-back {
+    background-color: #fd7e14;
+    color: white;
+}
+
+#score-keypad button.keypad-action-close {
+    background-color: #007bff;
+    color: white;
+    font-size: 1em;
+}
+
+/* Score cell styling */
+td.score-x, td.score-10, td.score-9 {
+    background-color: #FFCC00;
+    color: black;
+}
+
+td.score-8, td.score-7 {
+    background-color: #DD0000;
+    color: white;
+}
+
+td.score-6, td.score-5 {
+    background-color: #66CCFF;
+    color: black;
+}
+
+td.score-4, td.score-3 {
+    background-color: #333333;
+    color: white;
+}
+
+td.score-2, td.score-1 {
+    background-color: #FFFFFF;
+    color: black;
+}
+
+td.score-m {
+    background-color: #FFFFFF;
+    color: #adb5bd;
+}
+
+td.score-empty {
+    background-color: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    #score-keypad {
+        padding: 5px;
+        gap: 5px;
+    }
+    
+    #score-keypad button {
+        padding: 10px 5px;
+        font-size: 1em;
+    }
+}
+
+/* For landscape mode on small screens */
+@media (orientation: landscape) and (max-height: 500px) {
+    #score-keypad {
+        padding: 5px;
+        gap: 5px;
+    }
+    
+    #score-keypad button {
+        padding: 10px 5px;
+        font-size: 1em;
+    }
+}

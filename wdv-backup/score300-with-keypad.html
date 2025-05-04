@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WDV 300 Score</title>
+  <link rel="stylesheet" href="css/score.css" />
+  <link rel="stylesheet" href="css/keypad.css" />
+  <link rel="stylesheet" href="css/keypad-css-button-fix.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 id="main-title">WDV Scorecard - 300 Round</h1>
+    <div id="tabs" class="tabs"></div>
+    <div id="tabs-container"></div>
+    <div id="all-totals" class="all-totals">
+      <h3>Running Totals for All Archers</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Archer</th>
+            <th>School</th>
+            <th>Gender</th>
+            <th>Team</th>
+            <th>10s</th>
+            <th>Xs</th>
+            <th>Score</th>
+            <th>Avg</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="total-scores"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bottom-buttons">
+    <button id="reset-button">RESET</button>
+    <button id="copy-totals-button">COPY</button>
+    <button id="sms-button">SMS</button>
+    <button id="mail-button">MAIL</button>
+  </div>
+
+  <div id="reset-modal" class="modal">
+    <div class="modal-content">
+      <h2>Reset Options</h2>
+      <div class="modal-buttons">
+        <button id="modal-cancel">Cancel</button>
+        <button id="modal-reset">Reset</button>
+        <button id="modal-sample">Sample</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Keypad (Added from team_round.html) -->
+  <div id="score-keypad" style="display: none;">
+    <button type="button" data-value="X">X</button>
+    <button type="button" data-value="10">10</button>
+    <button type="button" data-value="9">9</button>
+    <button type="button" data-action="next" class="keypad-action-next" title="Next Field">➡️</button>
+    <button type="button" data-value="8">8</button>
+    <button type="button" data-value="7">7</button>
+    <button type="button" data-value="6">6</button>
+    <button type="button" data-action="back" class="keypad-action-back" title="Previous Field">⬅️</button>
+    <button type="button" data-value="5">5</button>
+    <button type="button" data-value="4">4</button>
+    <button type="button" data-value="3">3</button>
+    <button type="button" data-action="clear" class="keypad-action" title="Clear Field">Clear</button>
+    <button type="button" data-value="2">2</button>
+    <button type="button" data-value="1">1</button>
+    <button type="button" data-value="M">M</button>
+    <button type="button" data-action="close" class="keypad-action-close" title="Close Keypad">Close</button>
+  </div>
+
+  <!-- Config for JS -->
+ <!-- Config for JS -->
+<script>
+  const initConfig = {
+    round: "300",
+    school: "WDV",
+    archerCount: 4,
+    defaultArcherNames: ["Archer 1", "Archer 2", "Archer 3", "Archer 4"],
+    contactInfo: {
+      smsNumber: "14244439811",
+      emailAddress: "davinciarchers@gmail.com"
+    }
+  };
+</script>
+
+  <!-- Main script -->
+  <script src="js/score-with-keypad.js"></script>
+</body>
+</html>

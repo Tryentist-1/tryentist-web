@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Olympic Archery Scorer</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/addons/p5.dom.min.js"></script>
+
+    <style>
+        /* Basic Reset & Defaults */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6; /* Set line-height for non-canvas text */
+            background-color: #f0f0f0; /* Match p5.js background(240) */
+            color: #333;
+            /* overflow: hidden; /* Optional: Uncomment if you want to strictly prevent scrolling */
+        }
+
+        /* Header Styles */
+        .page-header {
+            text-align: center;
+            padding: 10px 10px 15px 10px; /* Vertical padding, minimal horizontal */
+            background-color: #e9e9e9; /* Light grey header background */
+            border-bottom: 1px solid #ccc; /* Subtle border */
+        }
+        .page-header h2 {
+            margin: 0 0 3px 0; /* Margin below H2 */
+            font-size: 1.3em; /* Base size for title */
+            color: #222; /* Darker text */
+            font-weight: 600;
+        }
+        .page-header h3 {
+            margin: 0;
+            font-size: 0.85em; /* Base size for subtitle */
+            color: #444; /* Medium-dark text */
+            font-weight: normal;
+        }
+
+        /* Canvas Container */
+        #canvas-container {
+            line-height: 0; /* Prevent extra space sometimes added below canvas */
+            margin: 0;
+            padding: 0;
+            /* The canvas dimensions are set by p5.js create/resizeCanvas */
+        }
+
+        /* Basic Button Styling (Affects p5.dom buttons) */
+        button {
+            padding: 8px 12px; /* Adjust padding */
+            font-size: 0.9em; /* Adjust font size */
+            cursor: pointer;
+            margin: 0 5px; /* Add some space between buttons if positioned side-by-side */
+            background-color: #ddd; /* Default button color */
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            color: #333; /* Button text color */
+        }
+        button:hover {
+            background-color: #ccc; /* Simple hover effect */
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) { /* Tablets and below */
+            .page-header h2 {
+                font-size: 1.15em; /* Slightly smaller title */
+            }
+            .page-header h3 {
+                font-size: 0.8em; /* Slightly smaller subtitle */
+            }
+             button {
+                padding: 6px 10px; /* Smaller padding on mobile */
+                font-size: 0.85em; /* Smaller font on mobile */
+             }
+        }
+
+        @media (max-width: 480px) { /* Smaller phones */
+             .page-header h2 {
+                font-size: 1.0em; /* Even smaller title */
+            }
+            .page-header h3 {
+                font-size: 0.75em; /* Even smaller subtitle */
+            }
+             button {
+                padding: 5px 8px; /* Even smaller padding */
+                font-size: 0.8em; /* Even smaller font */
+             }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <h2>Interactive Olympic Archery Scorer (p5.js)</h2>
+        <h3>Code prompted by Tryentist using Google Gemini Pro 2.5.</h3>
+    </div>
+
+    <div id="canvas-container">
+        </div>
+
+    <script>
+        // --- Configuration ---
+        let arrowsPerEnd = 3;
+        let numEnds = 6;
+        let targetX, targetY;
+        let targetRadius;
+        const ringColors = [ // Colors remain the same
+          [255, 255, 255], [255, 255, 255], [0, 0, 0], [0, 0, 0],
+          [100, 150, 255], [100, 150, 255], [255, 80, 80], [255, 80, 80],
+          [255, 255, 100], [255, 255, 100],
+        ];
+        const ringScores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let ringRadii = [];
+        let xRingRadius;
+        const xRingInputFactor = 0.65;
+
+        // --- Match State ---
+        let matchData = [];
+        let currentEnd = 1;
+        let currentArrowInEnd = 1;
+        let matchOver = false;
+
+        // --- Correction State ---
+        let isCorrectionMode = false;
+        let correctionEndIndex = -1; // 0-based
+        let correctionArrowIndex = -1; // 0-based
+        let correctionEndNumber = -1; // 1-based (for display)
+        let correctionArrowNumber = -1; // 1-based (for display)
+
+        // --- End of Match Stats & Analysis ---
+        let totalScore = 0;
+        let numXs = 0;
+        let numTens = 0; // Non-X 10s
+        let avgX = 0;
+        let avgY = 0;
+        let totalArrowsShot = 0;
+        let biasDescription = "";
+
+        // --- UI Elements ---
+        let resetButton;
+        let correctButton; // New button
+        let saveButton;
+        let statusTextY = 25; // Y position for top status text line
+        let buttonY = statusTextY + 25; // Y position for buttons below status text
+
+        // =================== SETUP ===================
+        function setup() {
+            // Calculate canvas height dynamically
+            let headerElement = document.querySelector('.page-header');
+            let headerHeight = headerElement ? headerElement.offsetHeight : 80; // Estimate if not found quickly
+            let canvasHeight = windowHeight - headerHeight - 10; // Fill remaining height minus a small margin
+            canvasHeight = max(canvasHeight, 550); // Ensure minimum height
+
+            let cnv = createCanvas(windowWidth, canvasHeight);
+            cnv.parent('canvas-container'); // <<< Place canvas in the container div
+
+            // --- Target Positioning (Relative to canvas) ---
+            targetX = width / 2;
+            // Recalculate available height more carefully
+            let spaceBelowButtons = height - buttonY - 10; // Space from buttons to canvas bottom
+            let estimatedScoreboardHeight = (numEnds + 2) * 20; // Estimate scoreboard height needed
+            let availableForTarget = spaceBelowButtons - estimatedScoreboardHeight;
+            // Ensure target radius doesn't push scoreboard off
+            targetRadius = min(availableForTarget * 0.4, width * 0.3, 250); // Limit max radius too
+            targetRadius = max(targetRadius, 50); // Ensure min radius
+            targetY = buttonY + targetRadius + 30; // Position target below buttons, ensure gap
+
+            calculateRadii();
+
+            // --- Create Buttons ---
+            resetButton = createButton('Reset / Config'); // Shortened text
+            correctButton = createButton('Correct Arrow'); // New button
+            saveButton = createButton('Save Results');
+            positionButtons(); // Position using helper function
+
+            resetButton.mousePressed(configureAndResetMatch);
+            correctButton.mousePressed(startCorrection); // Link to correction function
+            saveButton.mousePressed(saveScorecard);
+            saveButton.hide();
+
+            textAlign(LEFT, TOP);
+            textSize(16);
+            noStroke();
+
+            initializeMatchData(false);
+            console.log(`Initial Canvas Size: ${width}x${height}, Target Y: ${targetY.toFixed(0)}, Target Radius: ${targetRadius.toFixed(0)}`);
+        }
+
+        // =================== CONFIG, RESET, CORRECTION ===================
+        function configureAndResetMatch() {
+            let inputArrows = prompt(`Enter number of arrows per end:`, arrowsPerEnd);
+            let inputEnds = prompt(`Enter number of ends:`, numEnds);
+            let newArrowsPerEnd = parseInt(inputArrows);
+            if (!isNaN(newArrowsPerEnd) && newArrowsPerEnd > 0) arrowsPerEnd = newArrowsPerEnd;
+            let newNumEnds = parseInt(inputEnds);
+            if (!isNaN(newNumEnds) && newNumEnds > 0) numEnds = newNumEnds;
+            isCorrectionMode = false; correctionEndIndex = -1; correctionArrowIndex = -1;
+            initializeMatchData(true);
+        }
+
+        function initializeMatchData(logReset = true) {
+            matchData = [];
+            for (let i = 0; i < numEnds; i++) matchData.push([]);
+            currentEnd = 1; currentArrowInEnd = 1; matchOver = false;
+            isCorrectionMode = false;
+            totalScore = 0; numXs = 0; numTens = 0; avgX = 0; avgY = 0;
+            totalArrowsShot = 0; biasDescription = "";
+            if(saveButton) saveButton.hide();
+            if (logReset) console.log(`Match Reset: ${numEnds} ends, ${arrowsPerEnd} arrows per end.`);
+            if (typeof draw === 'function' && typeof width !== 'undefined' && width > 0) { loop(); redraw(); }
+        }
+
+        function startCorrection() {
+            if (isCorrectionMode) {
+                isCorrectionMode = false; correctionEndIndex = -1; correctionArrowIndex = -1;
+                redraw(); alert("Correction mode cancelled."); return;
+            }
+            let endNumStr = prompt(`Enter End # to correct (1-${numEnds}):`); if (endNumStr === null) return;
+            let endNum = parseInt(endNumStr);
+            let arrowNumStr = prompt(`Enter Arrow # in End to correct (1-${arrowsPerEnd}):`); if (arrowNumStr === null) return;
+            let arrowNum = parseInt(arrowNumStr);
+            let tempEndIndex = endNum - 1; let tempArrowIndex = arrowNum - 1;
+            if (isNaN(endNum) || tempEndIndex < 0 || tempEndIndex >= numEnds || isNaN(arrowNum) || tempArrowIndex < 0 || tempArrowIndex >= arrowsPerEnd) {
+                alert("Invalid End or Arrow number."); return;
+            }
+            if (!matchData[tempEndIndex] || tempArrowIndex >= matchData[tempEndIndex].length) {
+                 alert(`Arrow ${arrowNum} in End ${endNum} has not been shot yet.`); return;
+            }
+            isCorrectionMode = true; correctionEndIndex = tempEndIndex; correctionArrowIndex = tempArrowIndex;
+            correctionEndNumber = endNum; correctionArrowNumber = arrowNum;
+            console.log(`Correction Mode: Ready to correct E${endNum} A${arrowNum}`);
+            alert(`Click on the target to enter the new score and position for End ${endNum}, Arrow ${arrowNum}.`);
+            loop(); redraw();
+        }
+
+
+        // =================== CORE DRAWING & LOGIC ===================
+        function calculateRadii() { // Corrected Version
+          ringRadii = [];
+          let ringWidth = targetRadius / 10;
+          if (targetRadius <= 0) { console.error("Target radius invalid in calculateRadii"); return; }
+          for (let i = 0; i < 10; i++) {
+            let scoreZoneRadius = (i + 1) * ringWidth;
+            ringRadii.push(scoreZoneRadius);
+          }
+          if (ringRadii.length > 0) {
+             xRingRadius = (ringRadii[0] / 2) * xRingInputFactor;
+          } else { xRingRadius = 0; }
+        }
+
+        function draw() {
+          background(240);
+          displayCurrentStatus();
+          drawTarget();
+          drawArrowMarkers();
+          displayScoreboard(); // Draw scores below target
+          if (matchOver && totalArrowsShot > 0 && !isCorrectionMode) {
+            drawAveragePosition();
+          }
+        }
+
+        function getScore(x, y) { // Corrected Version
+            let d = dist(x, y, targetX, targetY);
+            if (d <= xRingRadius) return 'X';
+            if (!ringRadii || ringRadii.length !== 10) return 0;
+            for (let i = 0; i < 10; i++) {
+                if (d <= ringRadii[i]) return 10 - i;
+            }
+            return 0;
+        }
+
+        function mousePressed() { // Includes Correction Logic
+            if (mouseY < buttonY + 20 || mouseY > height || mouseX < 0 || mouseX > width) return; // Ignore clicks above target/outside
+            if (isCorrectionMode) {
+                let d = dist(mouseX, mouseY, targetX, targetY);
+                if (d <= targetRadius) {
+                    let score = getScore(mouseX, mouseY);
+                    if (score !== 0) {
+                        let arrowToCorrect = matchData[correctionEndIndex][correctionArrowIndex];
+                        arrowToCorrect.score = score; arrowToCorrect.value = (score === 'X' ? 10 : score);
+                        arrowToCorrect.x = mouseX; arrowToCorrect.y = mouseY;
+                        console.log(`Corrected E${correctionEndNumber} A${correctionArrowNumber} to ${score} at (${mouseX.toFixed(0)}, ${mouseY.toFixed(0)})`);
+                        isCorrectionMode = false; correctionEndIndex = -1; correctionArrowIndex = -1;
+                        recalculateAllStats();
+                        if (matchOver) noLoop(); // Stop loop again if match was already over
+                        redraw();
+                    } else { alert("Correction click missed the scoring area. Please click on the target rings."); }
+                } else { alert("Correction click missed the target. Please click on the target rings."); }
+                return; // Stop further processing
+            }
+            // Normal Scoring Logic
+            if (matchOver) return;
+            let d_norm = dist(mouseX, mouseY, targetX, targetY); // Use different var name just in case
+            if (d_norm <= targetRadius) {
+                let score_norm = getScore(mouseX, mouseY);
+                if (score_norm !== 0) {
+                    let arrowData = { score: score_norm, value: (score_norm === 'X' ? 10 : score_norm), x: mouseX, y: mouseY, end: currentEnd, arrowInEnd: currentArrowInEnd };
+                    if (!matchData[currentEnd - 1]) matchData[currentEnd - 1] = [];
+                    matchData[currentEnd - 1].push(arrowData);
+                    currentArrowInEnd++;
+                    if (currentArrowInEnd > arrowsPerEnd) {
+                        currentEnd++; currentArrowInEnd = 1;
+                        if (currentEnd > numEnds) {
+                            matchOver = true; console.log("Match Over. Calculating final stats...");
+                            recalculateAllStats();
+                            if (saveButton) saveButton.show();
+                            noLoop(); redraw();
+                        }
+                    }
+                }
+            }
+        }
+
+        // =================== STATS RECALCULATION ===================
+        function recalculateAllStats() { // Same as before
+            totalScore = 0; numXs = 0; numTens = 0;
+            let sumX = 0; let sumY = 0; totalArrowsShot = 0;
+            if (!matchData || !Array.isArray(matchData)) { console.error("Match data missing for stats recalculation."); biasDescription = "Error calculating stats."; return; }
+            for (let endArr of matchData) {
+                if (!endArr || !Array.isArray(endArr)) continue;
+                for (let arrow of endArr) {
+                    if (!arrow || typeof arrow.value === 'undefined' || typeof arrow.score === 'undefined' || typeof arrow.x === 'undefined' || typeof arrow.y === 'undefined') continue;
+                    totalScore += arrow.value; if (arrow.score === 'X') numXs++; if (arrow.score === 10) numTens++;
+                    sumX += arrow.x; sumY += arrow.y; totalArrowsShot++;
+                }
+            }
+            if (totalArrowsShot > 0) { avgX = sumX / totalArrowsShot; avgY = sumY / totalArrowsShot; analyzeBias(avgX, avgY); }
+            else { avgX = targetX; avgY = targetY; biasDescription = "No arrows shot."; }
+            console.log(`Stats Recalculated - Score: ${totalScore}, Xs: ${numXs}, 10s: ${numTens}`);
+        }
+
+        function analyzeBias(ax, ay) { // Same as before
+            let deltaX = ax - targetX; let deltaY = ay - targetY; let threshold = targetRadius / 10; let biasParts = [];
+            if (deltaY < -threshold) biasParts.push("High"); else if (deltaY > threshold) biasParts.push("Low");
+            if (deltaX < -threshold) biasParts.push("Left"); else if (deltaX > threshold) biasParts.push("Right");
+            if (biasParts.length === 0) biasDescription = "Group centered well."; else biasDescription = "Group centered: " + biasParts.join(" and ") + ".";
+        }
+
+        // =================== DRAWING HELPERS ===================
+        function drawTarget() { // Includes white line fix
+            push(); translate(targetX, targetY); noStroke();
+            if (!ringRadii || ringRadii.length !== 10) { pop(); return; }
+            fill(ringColors[0]); ellipse(0, 0, targetRadius * 2);
+            fill(ringColors[2]); ellipse(0, 0, ringRadii[7] * 2); // Black (Rings 3/4)
+            fill(ringColors[4]); ellipse(0, 0, ringRadii[5] * 2); // Blue (Rings 5/6)
+            fill(ringColors[6]); ellipse(0, 0, ringRadii[3] * 2); // Red (Rings 7/8)
+            fill(ringColors[8]); ellipse(0, 0, ringRadii[1] * 2); // Yellow (Rings 9/10/X)
+            strokeWeight(1); noFill();
+            for (let i = 0; i < 9; i++) { stroke(i === 5 ? 255 : 0); ellipse(0, 0, ringRadii[i] * 2); } // White line at index 5
+            stroke(0); ellipse(0, 0, xRingRadius * 2); // X ring line
+            pop();
+        }
+
+        function drawArrowMarkers() { // Same as before
+          push(); if (!matchData || !Array.isArray(matchData)) return;
+          for (let endArr of matchData) { if (!endArr || !Array.isArray(endArr)) continue; for (let arrow of endArr) { if (!arrow || typeof arrow.x === 'undefined' || typeof arrow.y === 'undefined') continue; fill(0, 0, 0, 200); noStroke(); ellipse(arrow.x, arrow.y, 8, 8); } }
+          pop();
+        }
+
+        function drawAveragePosition() { // Includes outline fix
+            push(); let dotSize = 15; noStroke(); fill(255, 0, 0, 180); ellipse(avgX, avgY, dotSize); // Red center
+            strokeWeight(1); noFill(); stroke(0); ellipse(avgX, avgY, dotSize); // Black outline
+            stroke(255); ellipse(avgX, avgY, dotSize + 2); // White outline
+            pop();
+        }
+
+        // --- Updated: displayScoreboard Below Target ---
+        function displayScoreboard() {
+            push();
+            // Position below target - Reduced gap
+            let scoreX = width / 2;
+            let scoreY = targetY + targetRadius + 15; // Start closer below target
+            let defaultLineHeight = 20;
+            let defaultTextSize = 14;
+            let currentLineHeight = defaultLineHeight;
+            let currentTextSize = defaultTextSize;
+
+            // Check available height and adjust text size/line height if needed
+            let availableHeight = height - scoreY - 10; // Space remaining at bottom
+            // Estimate height needed - use current numEnds in case it changed
+            let requiredHeight = (numEnds * currentLineHeight) + (currentLineHeight * 2);
+
+            if (requiredHeight > availableHeight && requiredHeight > 0) {
+                // Simple scaling - might make text very small if many ends
+                let scaleFactor = availableHeight / requiredHeight;
+                currentLineHeight = max(12, currentLineHeight * scaleFactor); // Min line height 12
+                currentTextSize = max(9, currentTextSize * scaleFactor);   // Min text size 9
+                // console.log(`Scoreboard overflow: Scaling text/line height. Factor: ${scaleFactor.toFixed(2)}`); // Optional Debug
+            }
+
+            textSize(currentTextSize); // Apply calculated size
+            fill(0); textAlign(CENTER, TOP); textFont('monospace');
+            textStyle(BOLD); text("End Scores", scoreX, scoreY - currentLineHeight * 1.5); textStyle(NORMAL);
+
+            if (!matchData || !Array.isArray(matchData)) { pop(); return; }
+
+            scoreY += currentLineHeight * 0.5; // Padding below heading
+
+             // --- DEBUGGING LOG ---
+            // console.log(`Drawing Scoreboard at Y: ${scoreY.toFixed(0)}, Available Height: ${availableHeight.toFixed(0)}, Required Height: ${requiredHeight.toFixed(0)}, Canvas Height: ${height}`);
+            // ---
+
+            for (let i = 0; i < numEnds; i++) {
+                // Check if this line would go off canvas
+                if (scoreY + (i * currentLineHeight) > height - currentLineHeight) {
+                    // Optional: Draw an indicator that scores are cut off
+                    // fill(150); text("...", scoreX, scoreY + i * currentLineHeight);
+                    break; // Stop drawing if out of space
+                }
+
+                if (!matchData[i]) matchData[i] = []; let endArrows = matchData[i]; let endTotal = 0;
+                for (let arrow of endArrows) { if (arrow && arrow.value) endTotal += arrow.value; }
+                let displayRunningTotal = 0;
+                for (let k = 0; k <= i; k++) { if (matchData[k] && Array.isArray(matchData[k])) { for (let arrow of matchData[k]) { if (arrow && arrow.value) displayRunningTotal += arrow.value; } } }
+                if (endArrows.length === 0 && (i + 1) > currentEnd && !matchOver) continue;
+                let endScoreTexts = [];
+                for (let j = 0; j < arrowsPerEnd; j++) { if (j < endArrows.length && endArrows[j] && endArrows[j].score) { endScoreTexts.push(String(endArrows[j].score).padStart(2)); } else { endScoreTexts.push("  "); } }
+                let scoreString = endScoreTexts.join(', ');
+                let displayLine = `E${String(i + 1).padStart(2)}: ${scoreString} | ${String(endTotal).padStart(3)} | ${String(displayRunningTotal).padStart(4)}`;
+                text(displayLine, scoreX, scoreY + i * currentLineHeight);
+            }
+            pop();
+        }
+
+
+        // --- Updated: displayCurrentStatus at Top ---
+        function displayCurrentStatus() {
+          push();
+          fill(0); textAlign(CENTER, TOP); textSize(16);
+          if (isCorrectionMode) {
+            fill(255, 0, 0); // Red text for correction prompt
+            text(`Correction Mode: Click target for End ${correctionEndNumber}, Arrow ${correctionArrowNumber}`, width / 2, statusTextY);
+          } else if (matchOver) {
+            let scoreSummary = `Match Over! Score: ${totalScore} (${numXs} X's, ${numTens} 10's)`;
+            text(scoreSummary, width / 2, statusTextY);
+            textSize(14); fill(50);
+            text(biasDescription, width / 2, statusTextY + 20);
+          } else {
+            let statusText = `Shooting End: ${currentEnd}/${numEnds}, Arrow: ${currentArrowInEnd}/${arrowsPerEnd}`;
+            text(statusText, width / 2, statusTextY);
+          }
+          pop();
+        }
+
+        // =================== UTILITIES ===================
+        function saveScorecard() { // Same as before
+            console.log("Saving scorecard...");
+            let d = new Date(); let timestamp = `${d.getFullYear()}${nf(d.getMonth() + 1, 2)}${nf(d.getDate(), 2)}_${nf(d.getHours(), 2)}${nf(d.getMinutes(), 2)}${nf(d.getSeconds(), 2)}`;
+            let filename = `ArcheryScore_${timestamp}.png`;
+            if (!isLooping()) redraw();
+            saveCanvas(filename);
+        }
+
+        // Updated windowResized
+        function windowResized() {
+            let headerElement = document.querySelector('.page-header');
+            let headerHeight = headerElement ? headerElement.offsetHeight : 80;
+            let canvasHeight = windowHeight - headerHeight - 10;
+            canvasHeight = max(canvasHeight, 550); // Use consistent min height
+            resizeCanvas(windowWidth, canvasHeight);
+
+            // Recalculate target position and size relative to new canvas dimensions
+            targetX = width / 2;
+            let spaceBelowButtons = height - buttonY - 10;
+            let estimatedScoreboardHeight = (numEnds + 2) * 20; // Re-estimate
+            let availableForTarget = spaceBelowButtons - estimatedScoreboardHeight;
+            targetRadius = min(availableForTarget * 0.4, width * 0.3, 250);
+            targetRadius = max(targetRadius, 50);
+            targetY = buttonY + targetRadius + 30; // Keep consistent gap
+
+            calculateRadii();
+            positionButtons(); // Reposition buttons
+
+            if (!isLooping() || matchOver) redraw(); // Redraw if loop stopped or match over
+            else loop(); // Ensure loop continues if match not over
+        }
+
+        // Helper function to position buttons
+        function positionButtons() {
+            let centerButtonX = width / 2;
+            let buttonSpacing = 10;
+            if (!correctButton || !resetButton || !saveButton) return;
+            try {
+                correctButton.position(centerButtonX - correctButton.width / 2, buttonY);
+                resetButton.position(centerButtonX - correctButton.width / 2 - buttonSpacing - resetButton.width, buttonY);
+                saveButton.position(centerButtonX + correctButton.width / 2 + buttonSpacing, buttonY);
+            } catch (e) {
+                console.error("Error positioning buttons:", e);
+                // Fallback if width isn't ready immediately
+                resetButton.position(width * 0.3, buttonY);
+                correctButton.position(width * 0.5 - 50, buttonY); // Approximate center
+                saveButton.position(width * 0.7, buttonY);
+            }
+        }
+    // End <script> tag content
+    </script>
+
+</body>
+</html>

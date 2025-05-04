@@ -1,13 +1,10 @@
-// JavaScript logic specific to the Team Round Scorecard
-// Modified to be a module
-
-import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
+// JavaScript logic specific to the Team Round Scorecard (team_round.html)
+// Complete version with all enhancements - FINAL FIX
 
 (function () { // Wrap in an IIFE
     console.log("Team Round Scorecard JS loaded with all enhancements");
 
     // --- Configuration ---
-
     const config = { round: 'Team' };
 
     // --- Helper Function: Get Date Stamp / Friendly Date ---
@@ -16,8 +13,15 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         const month = String(today.getMonth() + 1).padStart(2, '0'); 
         const day = String(today.getDate()).padStart(2, '0'); 
         return `${today.getFullYear()}-${month}-${day}`; 
-    }    
-
+    }
+    
+    const dayAbbr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; 
+    const monthAbbr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; 
+    
+    function getFriendlyDate() { 
+        const date = new Date(); 
+        return `${dayAbbr[date.getDay()]} ${monthAbbr[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`; 
+    }
 
     // --- State Variables ---
     let shootOffWinnerOverride = null;
@@ -42,7 +46,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     let setupModal, setupForm, setupSubmitButton;
     let setupT1School, setupT1Gender, setupT1Level, setupT1Group;
     let setupT2School, setupT2Gender, setupT2Level, setupT2Group;
-    let scorecardMain, matchInfoInputsDiv, matchInfoDisplayDiv,matchResultElement;
+    let scorecardMain, matchInfoInputsDiv, matchInfoDisplayDiv;
     let t1SummarySpan, t2SummarySpan, editSetupButton;
     let t1HeaderName, t2HeaderName;
     let t1ArcherNamesDisplay, t2ArcherNamesDisplay;
@@ -50,7 +54,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     let t2SchoolInput, t2GenderInput, t2LevelInput, t2GroupInput;
     let scoreTable, calculateButton, resetButton, shootOffRow;
     let matchResultElement, soWinnerText, tieBreakerControls;
-    let t1SoWinButton, t2SoWinButton,newRoundButton;
+    let t1SoWinButton, t2SoWinButton;
     let scoreKeypad, dateDisplayElement;
 
     // Function to initialize all DOM references - call this after DOM is ready
@@ -101,7 +105,6 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         soWinnerText = document.getElementById('so-winner-text'); 
         tieBreakerControls = document.querySelector('.tie-breaker-controls'); 
         t1SoWinButton = document.getElementById('t1-so-win-button'); 
-        newRoundButton=document.getElementById("new-round-button");
         t2SoWinButton = document.getElementById('t2-so-win-button');
         scoreKeypad = document.getElementById('score-keypad');
         dateDisplayElement = document.getElementById('current-date-display');
@@ -119,7 +122,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         console.log("Initializing App...");
         
         // Initialize all DOM references first
-        
+        initDOMReferences();
         
         console.log("Element check on initialization:", {
             setupModal: !!setupModal,
@@ -134,9 +137,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         if (shootOffRow) shootOffRow.style.display = 'none'; 
         if (tieBreakerControls) tieBreakerControls.style.display = 'none'; 
         if (matchInfoDisplayDiv) matchInfoDisplayDiv.style.display = 'none'; 
-        if (matchInfoInputsDiv) matchInfoInputsDiv.style.display = 'none';
-        if(newRoundButton)newRoundButton.addEventListener('click', resetFormAndStorage);
-
+        if (matchInfoInputsDiv) matchInfoInputsDiv.style.display = 'none'; 
         if (scoreKeypad) scoreKeypad.style.display = 'none';
         
         // Display Date
@@ -190,7 +191,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         if (scoreTable) { 
             console.log("Attaching delegated listener to scoreTable..."); 
             scoreTable.addEventListener('focusin', (event) => { 
-                if (event.target.tagName === 'INPUT' && event.target.type === 'text' && event.target.readOnly ===true && event.target.id.includes('-a')) { 
+                if (event.target.tagName === 'INPUT' && event.target.type === 'text' && event.target.readOnly && event.target.id.includes('-a')) { 
                     handleScoreInputFocus(event.target); 
                 } 
             }); 
@@ -263,7 +264,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
                 t1ArcherNames: [ 
                     {
                         first: document.getElementById('setup-t1-archer1-first')?.value.trim() || '', 
-                       last: document.getElementById('setup-t1-archer1-last')?.value.trim() || ''
+                        last: document.getElementById('setup-t1-archer1-last')?.value.trim() || ''
                     },
                     {
                         first: document.getElementById('setup-t1-archer2-first')?.value.trim() || '', 
@@ -398,7 +399,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
                 .map(archer => {
                     const firstName = archer.first || '';
                     const lastInitial = archer.last ? archer.last.charAt(0) : '';
-                    return `${firstName}${lastInitial ? ' ' + lastInitial : ''}` ;
+                    return `${firstName}${lastInitial ? ' ' + lastInitial : ''}`;
                 })
                 .join(' | ');
             
@@ -411,7 +412,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
                 .map(archer => {
                     const firstName = archer.first || '';
                     const lastInitial = archer.last ? archer.last.charAt(0) : '';
-                    return `${firstName}${lastInitial ? ' ' + lastInitial : ''}` ;
+                    return `${firstName}${lastInitial ? ' ' + lastInitial : ''}`;
                 })
                 .join(' | ');
             
@@ -421,6 +422,13 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         // Add New Round button if it doesn't exist
         if (matchInfoDisplayDiv) {
             // Check if New Round button already exists
+            if (!document.getElementById('new-round-button')) {
+                const newRoundButton = document.createElement('button');
+                newRoundButton.id = 'new-round-button';
+                newRoundButton.textContent = 'New Round';
+                newRoundButton.addEventListener('click', resetFormAndStorage);
+                
+                // Insert button at the beginning of the match info display
                 matchInfoDisplayDiv.insertBefore(newRoundButton, matchInfoDisplayDiv.firstChild);
             }
             
@@ -933,18 +941,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         } 
     }
 
-    // --- Run the code ---
-    function init() {
-        initDOMReferences();
-
-        initializeApp();
-    }
-
     // --- Run Initialization ---
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
+    initializeApp();
 
 })(); // --- End IIFE ---

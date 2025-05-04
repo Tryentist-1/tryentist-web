@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archery Scorecard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+
+<body>
+  <header>
+    <h1>Archery Scorecard</h1>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="buttons-container">
+        <div id="reset-container" class="button-group">
+          <button id="reset-button" class="btn btn-danger">Reset</button>
+        </div>
+        <div id="export-container" class="button-group">
+          <button id="copy-totals-button" class="btn btn-primary">Copy Totals</button>
+          <button id="sms-button" class="btn btn-primary">SMS</button>
+          <button id="mail-button" class="btn btn-primary">Mail</button>
+        </div>
+      </div>
+      <div id="tabs"></div>
+      <div id="tabs-container"></div>
+      <div id="totals-container">
+        <h2>Total Scores</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Archer</th>
+              <th>School</th>
+              <th>Gender</th>
+              <th>Team</th>
+              <th>10s</th>
+              <th>Xs</th>
+              <th>Total</th>
+              <th>Avg</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="total-scores"></tbody>
+        </table>
+      </div>
+      <div id="score-keypad">
+        <button data-value="X" class="keypad-btn">X</button>
+        <button data-value="10" class="keypad-btn">10</button>
+        <button data-value="9" class="keypad-btn">9</button>
+        <button data-value="8" class="keypad-btn">8</button>
+        <button data-value="7" class="keypad-btn">7</button>
+        <button data-value="6" class="keypad-btn">6</button>
+        <button data-value="5" class="keypad-btn">5</button>
+        <button data-value="4" class="keypad-btn">4</button>
+        <button data-value="3" class="keypad-btn">3</button>
+        <button data-value="2" class="keypad-btn">2</button>
+        <button data-value="1" class="keypad-btn">1</button>
+        <button data-value="M" class="keypad-btn">M</button>
+        <button data-action="clear" class="keypad-btn keypad-action-btn">Clear</button>
+        <button data-action="next" class="keypad-btn keypad-action-btn">Next</button>
+        <button data-action="back" class="keypad-btn keypad-action-btn">Back</button>
+        <button data-action="close" class="keypad-btn keypad-action-btn">Close</button>
+      </div>
+
+      <!-- Reset Modal -->
+      <div class="modal" id="reset-modal" style="display:none;">
+        <div class="modal-content">
+          <h2>Reset Options</h2>
+          <p>Choose an option to reset scores:</p>
+          <div class="modal-buttons">
+            <button id="modal-reset">Reset All</button>
+            <button id="modal-sample">Sample Data</button>
+            <button id="modal-cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="js/score-core.js" type="module"></script>
+  <script src="js/common.js" type="module"></script>
+  <script src="js/keypad.js" type="module"></script>
+  <script src="js/modal.js" type="module"></script>
+  <script src="js/index.js" type="module"></script>
+</body>
+
+</html>

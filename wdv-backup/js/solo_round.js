@@ -1,14 +1,11 @@
-// JavaScript logic specific to the Team Round Scorecard
-// Modified to be a module
-
-import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
+// JavaScript logic for the Solo Olympic Round Scorecard (solo_round.html)
+// Based on team_round.js but adapted for individual matches
 
 (function () { // Wrap in an IIFE
-    console.log("Team Round Scorecard JS loaded with all enhancements");
+    console.log("Solo Olympic Round Scorecard JS loaded");
 
     // --- Configuration ---
-
-    const config = { round: 'Team' };
+    const config = { round: 'SoloOlympic' };
 
     // --- Helper Function: Get Date Stamp / Friendly Date ---
     function getTodayStamp() { 
@@ -16,8 +13,15 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         const month = String(today.getMonth() + 1).padStart(2, '0'); 
         const day = String(today.getDate()).padStart(2, '0'); 
         return `${today.getFullYear()}-${month}-${day}`; 
-    }    
-
+    }
+    
+    const dayAbbr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; 
+    const monthAbbr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; 
+    
+    function getFriendlyDate() { 
+        const date = new Date(); 
+        return `${dayAbbr[date.getDay()]} ${monthAbbr[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`; 
+    }
 
     // --- State Variables ---
     let shootOffWinnerOverride = null;
@@ -25,91 +29,74 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     let blurTimeout = null; // For keypad
 
     // Updated archer name format with first and last name 
-    let team1ArcherNames = [
-        {first: "", last: ""}, 
-        {first: "", last: ""}, 
-        {first: "", last: ""}
-    ]; 
-
-    let team2ArcherNames = [
-        {first: "", last: ""}, 
-        {first: "", last: ""}, 
-        {first: "", last: ""}
-    ]; 
+    let archer1Data = { first: "", last: "" }; 
+    let archer2Data = { first: "", last: "" }; 
 
     // --- Get Element References ---
-    // IMPORTANT FIX: Declare these variables at module level but initialize them later
+    // Declare these variables at module level but initialize them later
     let setupModal, setupForm, setupSubmitButton;
-    let setupT1School, setupT1Gender, setupT1Level, setupT1Group;
-    let setupT2School, setupT2Gender, setupT2Level, setupT2Group;
-    let scorecardMain, matchInfoInputsDiv, matchInfoDisplayDiv,matchResultElement;
-    let t1SummarySpan, t2SummarySpan, editSetupButton;
-    let t1HeaderName, t2HeaderName;
-    let t1ArcherNamesDisplay, t2ArcherNamesDisplay;
-    let t1SchoolInput, t1GenderInput, t1LevelInput, t1GroupInput;
-    let t2SchoolInput, t2GenderInput, t2LevelInput, t2GroupInput;
+    let setupA1School, setupA1Gender, setupA1Level;
+    let setupA2School, setupA2Gender, setupA2Level;
+    let scorecardMain, matchInfoInputsDiv, matchInfoDisplayDiv;
+    let a1SummarySpan, a2SummarySpan, editSetupButton;
+    let a1HeaderName, a2HeaderName;
+    let a1SchoolInput, a1GenderInput, a1LevelInput;
+    let a2SchoolInput, a2GenderInput, a2LevelInput;
     let scoreTable, calculateButton, resetButton, shootOffRow;
     let matchResultElement, soWinnerText, tieBreakerControls;
-    let t1SoWinButton, t2SoWinButton,newRoundButton;
+    let a1SoWinButton, a2SoWinButton;
     let scoreKeypad, dateDisplayElement;
 
     // Function to initialize all DOM references - call this after DOM is ready
     function initDOMReferences() {
         // Setup Modal Elements
-        setupModal = document.getElementById('team-setup-modal'); 
-        setupForm = document.getElementById('team-setup-form'); 
+        setupModal = document.getElementById('archer-setup-modal'); 
+        setupForm = document.getElementById('archer-setup-form'); 
         setupSubmitButton = document.getElementById('setup-start-scoring-button');
         
-        setupT1School = document.getElementById('setup-t1-school'); 
-        setupT1Gender = document.getElementById('setup-t1-gender'); 
-        setupT1Level = document.getElementById('setup-t1-level'); 
-        setupT1Group = document.getElementById('setup-t1-group');
+        setupA1School = document.getElementById('setup-a1-school'); 
+        setupA1Gender = document.getElementById('setup-a1-gender'); 
+        setupA1Level = document.getElementById('setup-a1-level'); 
         
-        setupT2School = document.getElementById('setup-t2-school'); 
-        setupT2Gender = document.getElementById('setup-t2-gender'); 
-        setupT2Level = document.getElementById('setup-t2-level'); 
-        setupT2Group = document.getElementById('setup-t2-group');
+        setupA2School = document.getElementById('setup-a2-school'); 
+        setupA2Gender = document.getElementById('setup-a2-gender'); 
+        setupA2Level = document.getElementById('setup-a2-level'); 
         
         // Main Scorecard Elements
         scorecardMain = document.getElementById('scorecard-main'); 
         matchInfoInputsDiv = document.querySelector('.match-info'); 
         matchInfoDisplayDiv = document.querySelector('.match-info-display'); 
-        t1SummarySpan = document.getElementById('t1-summary'); 
-        t2SummarySpan = document.getElementById('t2-summary'); 
+        a1SummarySpan = document.getElementById('a1-summary'); 
+        a2SummarySpan = document.getElementById('a2-summary'); 
         editSetupButton = document.getElementById('edit-setup-button'); 
-        t1HeaderName = document.getElementById('t1-header-name'); 
-        t2HeaderName = document.getElementById('t2-header-name');
-        t1ArcherNamesDisplay = document.getElementById('t1-archer-names-display'); 
-        t2ArcherNamesDisplay = document.getElementById('t2-archer-names-display');
+        a1HeaderName = document.getElementById('a1-header-name'); 
+        a2HeaderName = document.getElementById('a2-header-name');
 
-        // Original hidden input references (for team info)
-        t1SchoolInput = document.getElementById('t1-school'); 
-        t1GenderInput = document.getElementById('t1-gender'); 
-        t1LevelInput = document.getElementById('t1-level'); 
-        t1GroupInput = document.getElementById('t1-group');
-        t2SchoolInput = document.getElementById('t2-school'); 
-        t2GenderInput = document.getElementById('t2-gender'); 
-        t2LevelInput = document.getElementById('t2-level'); 
-        t2GroupInput = document.getElementById('t2-group');
+        // Original hidden input references (for archer info)
+        a1SchoolInput = document.getElementById('a1-school'); 
+        a1GenderInput = document.getElementById('a1-gender'); 
+        a1LevelInput = document.getElementById('a1-level'); 
+        a2SchoolInput = document.getElementById('a2-school'); 
+        a2GenderInput = document.getElementById('a2-gender'); 
+        a2LevelInput = document.getElementById('a2-level');
 
         // Other elements
-        scoreTable = document.getElementById('team_round_table'); 
+        scoreTable = document.getElementById('solo_round_table'); 
         calculateButton = document.getElementById('calculate-button'); 
         resetButton = document.getElementById('reset-button'); 
         shootOffRow = document.getElementById('shoot-off');
         matchResultElement = document.getElementById('match-result'); 
         soWinnerText = document.getElementById('so-winner-text'); 
         tieBreakerControls = document.querySelector('.tie-breaker-controls'); 
-        t1SoWinButton = document.getElementById('t1-so-win-button'); 
-        newRoundButton=document.getElementById("new-round-button");
-        t2SoWinButton = document.getElementById('t2-so-win-button');
+        a1SoWinButton = document.getElementById('a1-so-win-button'); 
+        a2SoWinButton = document.getElementById('a2-so-win-button');
         scoreKeypad = document.getElementById('score-keypad');
         dateDisplayElement = document.getElementById('current-date-display');
     }
 
     // --- Helper Function: Generate Session Key ---
     function getSessionKey() { 
-        const schoolAbbr = (t1SchoolInput?.value?.trim().toUpperCase() || "NOSCHOOL").substring(0, 3); 
+        const schoolAbbr = (a1SchoolInput?.value?.trim().toUpperCase() || "NOSCHOOL").substring(0, 3); 
         const todayStamp = getTodayStamp(); 
         return `archeryScores_${config.round}_${schoolAbbr}_${todayStamp}`; 
     }
@@ -119,24 +106,22 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         console.log("Initializing App...");
         
         // Initialize all DOM references first
-        
+        initDOMReferences();
         
         console.log("Element check on initialization:", {
             setupModal: !!setupModal,
             scorecardMain: !!scorecardMain,
             setupForm: !!setupForm,
             setupSubmitButton: !!setupSubmitButton,
-            setupT1School: !!setupT1School,
-            setupT2School: !!setupT2School
+            setupA1School: !!setupA1School,
+            setupA2School: !!setupA2School
         });
         
         // Hide elements
         if (shootOffRow) shootOffRow.style.display = 'none'; 
         if (tieBreakerControls) tieBreakerControls.style.display = 'none'; 
         if (matchInfoDisplayDiv) matchInfoDisplayDiv.style.display = 'none'; 
-        if (matchInfoInputsDiv) matchInfoInputsDiv.style.display = 'none';
-        if(newRoundButton)newRoundButton.addEventListener('click', resetFormAndStorage);
-
+        if (matchInfoInputsDiv) matchInfoInputsDiv.style.display = 'none'; 
         if (scoreKeypad) scoreKeypad.style.display = 'none';
         
         // Display Date
@@ -149,10 +134,10 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         // Load data or show setup
         const loadedData = loadDataFromLocalStorage();
         console.log("Loaded data:", loadedData);
-        console.log("Is team info valid:", loadedData && isTeamInfoValid(loadedData));
+        console.log("Is archer info valid:", loadedData && isArcherInfoValid(loadedData));
         
-        if (loadedData && isTeamInfoValid(loadedData)) { 
-            console.log("Valid team info found."); 
+        if (loadedData && isArcherInfoValid(loadedData)) { 
+            console.log("Valid archer info found."); 
             populateHiddenInputs(loadedData); 
             displaySummaryInfo(); 
             if (scorecardMain) {
@@ -166,7 +151,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
             calculateAllScores(); 
         }
         else { 
-            console.log("No valid team info. Showing setup modal."); 
+            console.log("No valid archer info. Showing setup modal."); 
             setDefaultSetupModalValues(); 
             if (setupModal) {
                 setupModal.style.display = 'block'; 
@@ -190,7 +175,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         if (scoreTable) { 
             console.log("Attaching delegated listener to scoreTable..."); 
             scoreTable.addEventListener('focusin', (event) => { 
-                if (event.target.tagName === 'INPUT' && event.target.type === 'text' && event.target.readOnly ===true && event.target.id.includes('-a')) { 
+                if (event.target.tagName === 'INPUT' && event.target.type === 'text' && event.target.readOnly && event.target.id.includes('-a')) { 
                     handleScoreInputFocus(event.target); 
                 } 
             }); 
@@ -223,12 +208,12 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         }
         
         // Other listeners
-        [t1SchoolInput, t1GenderInput, t1LevelInput, t1GroupInput, t2SchoolInput, t2GenderInput, t2LevelInput, t2GroupInput].forEach(input => { 
+        [a1SchoolInput, a1GenderInput, a1LevelInput, a2SchoolInput, a2GenderInput, a2LevelInput].forEach(input => { 
             if(input) input.addEventListener('change', saveDataToLocalStorage); 
         });
         
-        if (t1SoWinButton) t1SoWinButton.addEventListener('click', () => handleTieBreakerWin('t1')); 
-        if (t2SoWinButton) t2SoWinButton.addEventListener('click', () => handleTieBreakerWin('t2'));
+        if (a1SoWinButton) a1SoWinButton.addEventListener('click', () => handleTieBreakerWin('a1')); 
+        if (a2SoWinButton) a2SoWinButton.addEventListener('click', () => handleTieBreakerWin('a2'));
         
         // Setup Form Listener
         if (setupForm) { 
@@ -250,46 +235,22 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
             
             // Process the form data with split name fields
             const setupData = { 
-                t1School: setupT1School ? setupT1School.value : '',
-                t1Gender: setupT1Gender ? setupT1Gender.value : 'M',
-                t1Level: setupT1Level ? setupT1Level.value : 'JV',
-                t1Group: setupT1Group ? setupT1Group.value : '',
-                t2School: setupT2School ? setupT2School.value : '',
-                t2Gender: setupT2Gender ? setupT2Gender.value : 'M',
-                t2Level: setupT2Level ? setupT2Level.value : 'JV',
-                t2Group: setupT2Group ? setupT2Group.value : '',
+                a1School: setupA1School ? setupA1School.value : '',
+                a1Gender: setupA1Gender ? setupA1Gender.value : 'M',
+                a1Level: setupA1Level ? setupA1Level.value : 'JV',
+                a2School: setupA2School ? setupA2School.value : '',
+                a2Gender: setupA2Gender ? setupA2Gender.value : 'M',
+                a2Level: setupA2Level ? setupA2Level.value : 'JV',
                 
-                // Process split name fields for Team 1
-                t1ArcherNames: [ 
-                    {
-                        first: document.getElementById('setup-t1-archer1-first')?.value.trim() || '', 
-                       last: document.getElementById('setup-t1-archer1-last')?.value.trim() || ''
-                    },
-                    {
-                        first: document.getElementById('setup-t1-archer2-first')?.value.trim() || '', 
-                        last: document.getElementById('setup-t1-archer2-last')?.value.trim() || ''
-                    },
-                    {
-                        first: document.getElementById('setup-t1-archer3-first')?.value.trim() || '', 
-                        last: document.getElementById('setup-t1-archer3-last')?.value.trim() || ''
-                    }
-                ], 
-                
-                // Process split name fields for Team 2
-                t2ArcherNames: [ 
-                    {
-                        first: document.getElementById('setup-t2-archer1-first')?.value.trim() || '', 
-                        last: document.getElementById('setup-t2-archer1-last')?.value.trim() || ''
-                    },
-                    {
-                        first: document.getElementById('setup-t2-archer2-first')?.value.trim() || '', 
-                        last: document.getElementById('setup-t2-archer2-last')?.value.trim() || ''
-                    },
-                    {
-                        first: document.getElementById('setup-t2-archer3-first')?.value.trim() || '', 
-                        last: document.getElementById('setup-t2-archer3-last')?.value.trim() || ''
-                    }
-                ],
+                // Process split name fields for Archers
+                a1Data: { 
+                    first: document.getElementById('setup-a1-first')?.value.trim() || '', 
+                    last: document.getElementById('setup-a1-last')?.value.trim() || ''
+                },
+                a2Data: { 
+                    first: document.getElementById('setup-a2-first')?.value.trim() || '', 
+                    last: document.getElementById('setup-a2-last')?.value.trim() || ''
+                },
                 scores: {}, 
                 shootOffWinnerOverride: null 
             }; 
@@ -320,44 +281,37 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
             console.log("Initial calculation called after setup."); 
         } catch (error) {
             console.error("Error in handleSetupSubmit:", error);
-            alert("Error submitting team setup: " + error.message);
+            alert("Error submitting archer setup: " + error.message);
         }
     }
     
     function handleEditSetup() { 
         console.log("Edit setup clicked."); 
         
-        // Handle team info fields
-        if(setupT1School && t1SchoolInput) setupT1School.value = t1SchoolInput.value; 
-        if(setupT1Gender && t1GenderInput) setupT1Gender.value = t1GenderInput.value; 
-        if(setupT1Level && t1LevelInput) setupT1Level.value = t1LevelInput.value; 
-        if(setupT1Group && t1GroupInput) setupT1Group.value = t1GroupInput.value; 
+        // Handle archer info fields
+        if(setupA1School && a1SchoolInput) setupA1School.value = a1SchoolInput.value; 
+        if(setupA1Gender && a1GenderInput) setupA1Gender.value = a1GenderInput.value; 
+        if(setupA1Level && a1LevelInput) setupA1Level.value = a1LevelInput.value; 
         
-        if(setupT2School && t2SchoolInput) setupT2School.value = t2SchoolInput.value; 
-        if(setupT2Gender && t2GenderInput) setupT2Gender.value = t2GenderInput.value; 
-        if(setupT2Level && t2LevelInput) setupT2Level.value = t2LevelInput.value; 
-        if(setupT2Group && t2GroupInput) setupT2Group.value = t2GroupInput.value; 
+        if(setupA2School && a2SchoolInput) setupA2School.value = a2SchoolInput.value; 
+        if(setupA2Gender && a2GenderInput) setupA2Gender.value = a2GenderInput.value; 
+        if(setupA2Level && a2LevelInput) setupA2Level.value = a2LevelInput.value; 
         
-        // Handle split name fields for Team 1
-        for (let i = 0; i < 3; i++) {
-            const firstName = document.getElementById(`setup-t1-archer${i+1}-first`);
-            const lastName = document.getElementById(`setup-t1-archer${i+1}-last`);
-            
-            if (firstName && lastName && team1ArcherNames[i]) {
-                firstName.value = team1ArcherNames[i].first || '';
-                lastName.value = team1ArcherNames[i].last || '';
-            }
+        // Handle split name fields for archers
+        const firstNameField1 = document.getElementById('setup-a1-first');
+        const lastNameField1 = document.getElementById('setup-a1-last');
+        
+        if (firstNameField1 && lastNameField1 && archer1Data) {
+            firstNameField1.value = archer1Data.first || '';
+            lastNameField1.value = archer1Data.last || '';
         }
         
-        // Handle split name fields for Team 2
-        for (let i = 0; i < 3; i++) {
-            const firstName = document.getElementById(`setup-t2-archer${i+1}-first`);
-            const lastName = document.getElementById(`setup-t2-archer${i+1}-last`);
-            
-            if (firstName && lastName && team2ArcherNames[i]) {
-                firstName.value = team2ArcherNames[i].first || '';
-                lastName.value = team2ArcherNames[i].last || '';
-            }
+        const firstNameField2 = document.getElementById('setup-a2-first');
+        const lastNameField2 = document.getElementById('setup-a2-last');
+        
+        if (firstNameField2 && lastNameField2 && archer2Data) {
+            firstNameField2.value = archer2Data.first || '';
+            lastNameField2.value = archer2Data.last || '';
         }
         
         if (setupModal) setupModal.style.display = 'block'; 
@@ -366,61 +320,56 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     }
     
     function populateHiddenInputs(data) { 
-        if(t1SchoolInput) t1SchoolInput.value = data.t1School || ''; 
-        if(t1GenderInput) t1GenderInput.value = data.t1Gender || 'M'; 
-        if(t1LevelInput) t1LevelInput.value = data.t1Level || 'JV'; 
-        if(t1GroupInput) t1GroupInput.value = data.t1Group || ''; 
-        if(t2SchoolInput) t2SchoolInput.value = data.t2School || ''; 
-        if(t2GenderInput) t2GenderInput.value = data.t2Gender || 'M'; 
-        if(t2LevelInput) t2LevelInput.value = data.t2Level || 'JV'; 
-        if(t2GroupInput) t2GroupInput.value = data.t2Group || ''; 
+        if(a1SchoolInput) a1SchoolInput.value = data.a1School || ''; 
+        if(a1GenderInput) a1GenderInput.value = data.a1Gender || 'M'; 
+        if(a1LevelInput) a1LevelInput.value = data.a1Level || 'JV'; 
+        if(a2SchoolInput) a2SchoolInput.value = data.a2School || ''; 
+        if(a2GenderInput) a2GenderInput.value = data.a2Gender || 'M'; 
+        if(a2LevelInput) a2LevelInput.value = data.a2Level || 'JV'; 
         
         shootOffWinnerOverride = data.shootOffWinnerOverride || null; 
-        team1ArcherNames = data.t1ArcherNames || [{first:'', last:''}, {first:'', last:''}, {first:'', last:''}]; 
-        team2ArcherNames = data.t2ArcherNames || [{first:'', last:''}, {first:'', last:''}, {first:'', last:''}]; 
+        archer1Data = data.a1Data || {first:'', last:''}; 
+        archer2Data = data.a2Data || {first:'', last:''}; 
     }
     
     function displaySummaryInfo() { 
-        // Create team summary strings
-        const team1Str = `${t1SchoolInput?.value || ''}-${t1GenderInput?.value || ''}-${t1LevelInput?.value || ''}-${t1GroupInput?.value || ''}`; 
-        const team2Str = `${t2SchoolInput?.value || ''}-${t2GenderInput?.value || ''}-${t2LevelInput?.value || ''}-${t2GroupInput?.value || ''}`; 
+        // Create archer summary strings
+        const archer1Str = `${a1SchoolInput?.value || ''}-${a1GenderInput?.value || ''}-${a1LevelInput?.value || ''}`; 
+        const archer2Str = `${a2SchoolInput?.value || ''}-${a2GenderInput?.value || ''}-${a2LevelInput?.value || ''}`; 
         
         // Update display elements
-        if (t1SummarySpan) t1SummarySpan.textContent = team1Str; 
-        if (t2SummarySpan) t2SummarySpan.textContent = team2Str; 
-        if (t1HeaderName) t1HeaderName.textContent = team1Str; 
-        if (t2HeaderName) t2HeaderName.textContent = team2Str; 
+        if (a1SummarySpan) a1SummarySpan.textContent = archer1Str; 
+        if (a2SummarySpan) a2SummarySpan.textContent = archer2Str; 
+        if (a1HeaderName) a1HeaderName.textContent = archer1Str; 
+        if (a2HeaderName) a2HeaderName.textContent = archer2Str; 
         
-        // Format archer names as "First Last_Initial"
-        if (t1ArcherNamesDisplay) {
-            const formattedNames = team1ArcherNames
-                .filter(archer => archer.first || archer.last)
-                .map(archer => {
-                    const firstName = archer.first || '';
-                    const lastInitial = archer.last ? archer.last.charAt(0) : '';
-                    return `${firstName}${lastInitial ? ' ' + lastInitial : ''}` ;
-                })
-                .join(' | ');
-            
-            t1ArcherNamesDisplay.textContent = formattedNames || "No Archers";
+        // Add archer names to header titles
+        if (a1HeaderName && archer1Data) {
+            const firstName = archer1Data.first || '';
+            const lastName = archer1Data.last || '';
+            if (firstName || lastName) {
+                a1HeaderName.textContent += `: ${firstName} ${lastName}`;
+            }
         }
         
-        if (t2ArcherNamesDisplay) {
-            const formattedNames = team2ArcherNames
-                .filter(archer => archer.first || archer.last)
-                .map(archer => {
-                    const firstName = archer.first || '';
-                    const lastInitial = archer.last ? archer.last.charAt(0) : '';
-                    return `${firstName}${lastInitial ? ' ' + lastInitial : ''}` ;
-                })
-                .join(' | ');
-            
-            t2ArcherNamesDisplay.textContent = formattedNames || "No Archers";
+        if (a2HeaderName && archer2Data) {
+            const firstName = archer2Data.first || '';
+            const lastName = archer2Data.last || '';
+            if (firstName || lastName) {
+                a2HeaderName.textContent += `: ${firstName} ${lastName}`;
+            }
         }
         
         // Add New Round button if it doesn't exist
         if (matchInfoDisplayDiv) {
             // Check if New Round button already exists
+            if (!document.getElementById('new-round-button')) {
+                const newRoundButton = document.createElement('button');
+                newRoundButton.id = 'new-round-button';
+                newRoundButton.textContent = 'New Match';
+                newRoundButton.addEventListener('click', resetFormAndStorage);
+                
+                // Insert button at the beginning of the match info display
                 matchInfoDisplayDiv.insertBefore(newRoundButton, matchInfoDisplayDiv.firstChild);
             }
             
@@ -430,44 +379,38 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         if (matchInfoInputsDiv) matchInfoInputsDiv.style.display = 'none'; 
     }
     
-    function isTeamInfoValid(data) { 
-        return data && data.t1School && data.t2School; 
+    function isArcherInfoValid(data) { 
+        return data && data.a1School && data.a2School; 
     }
     
     function setDefaultSetupModalValues() { 
-        if(setupT1School) setupT1School.value = 'WDV'; 
-        if(setupT1Gender) setupT1Gender.value = 'M'; 
-        if(setupT1Level) setupT1Level.value = 'JV'; 
-        if(setupT1Group) setupT1Group.value = '01'; 
+        if(setupA1School) setupA1School.value = 'WDV'; 
+        if(setupA1Gender) setupA1Gender.value = 'M'; 
+        if(setupA1Level) setupA1Level.value = 'JV'; 
         
-        // Clear all archer name fields for Team 1
-        for (let i = 1; i <= 3; i++) {
-            const firstNameField = document.getElementById(`setup-t1-archer${i}-first`);
-            const lastNameField = document.getElementById(`setup-t1-archer${i}-last`);
-            
-            if(firstNameField) firstNameField.value = '';
-            if(lastNameField) lastNameField.value = '';
-        }
+        // Clear archer 1 name fields
+        const firstNameField1 = document.getElementById('setup-a1-first');
+        const lastNameField1 = document.getElementById('setup-a1-last');
         
-        if(setupT2School) setupT2School.value = 'OPP'; 
-        if(setupT2Gender) setupT2Gender.value = 'M'; 
-        if(setupT2Level) setupT2Level.value = 'JV'; 
-        if(setupT2Group) setupT2Group.value = '01';
+        if(firstNameField1) firstNameField1.value = '';
+        if(lastNameField1) lastNameField1.value = '';
         
-        // Clear all archer name fields for Team 2 
-        for (let i = 1; i <= 3; i++) {
-            const firstNameField = document.getElementById(`setup-t2-archer${i}-first`);
-            const lastNameField = document.getElementById(`setup-t2-archer${i}-last`);
-            
-            if(firstNameField) firstNameField.value = '';
-            if(lastNameField) lastNameField.value = '';
-        }
+        if(setupA2School) setupA2School.value = 'OPP'; 
+        if(setupA2Gender) setupA2Gender.value = 'M'; 
+        if(setupA2Level) setupA2Level.value = 'JV'; 
+        
+        // Clear archer 2 name fields 
+        const firstNameField2 = document.getElementById('setup-a2-first');
+        const lastNameField2 = document.getElementById('setup-a2-last');
+        
+        if(firstNameField2) firstNameField2.value = '';
+        if(lastNameField2) lastNameField2.value = '';
     }
     
     function isEndComplete(endNum) { 
-        for (let t=1; t<=2; t++) { 
-            for (let a=1; a<=6; a++) { 
-                const i=document.getElementById(`t${t}-e${endNum}-a${a}`); 
+        for (let a=1; a<=2; a++) { 
+            for (let arrow=1; arrow<=3; arrow++) { 
+                const i = document.getElementById(`a${a}-e${endNum}-a${arrow}`); 
                 if (!i || i.value.trim()==='') return false; 
             } 
         } 
@@ -475,13 +418,12 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     }
     
     function isShootOffComplete() { 
-        for (let t=1; t<=2; t++) { 
-            for (let a=1; a<=3; a++) { 
-                const i=document.getElementById(`t${t}-so-a${a}`); 
-                if (!i || i.value.trim()==='') return false; 
-            } 
-        } 
-        return true; 
+        const a1Input = document.getElementById('a1-so-a1');
+        const a2Input = document.getElementById('a2-so-a1');
+        
+        return a1Input && a2Input && 
+               a1Input.value.trim() !== '' && 
+               a2Input.value.trim() !== '';
     }
 
     // --- Keypad Focus/Blur Handling ---
@@ -577,127 +519,153 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
 
     // --- Main Calculation Function ---
     function calculateAllScores() { 
-        let t1MatchScore = 0; 
-        let t2MatchScore = 0; 
+        let a1MatchScore = 0; 
+        let a2MatchScore = 0; 
         let matchOver = false; 
         let winner = null; 
         let overallInputsValid = true; 
         clearHighlights(); 
+        
         if (tieBreakerControls) tieBreakerControls.style.display = 'none'; 
-        for (let end = 1; end <= 4; end++) { 
-            let t1EndTotal = 0, t2EndTotal = 0; 
-            for (let arrow = 1; arrow <= 6; arrow++) { 
-                const i = document.getElementById(`t1-e${end}-a${arrow}`); 
+        
+        // Calculate scores for each end (1-5 for Olympic Round)
+        for (let end = 1; end <= 5; end++) { 
+            let a1EndTotal = 0, a2EndTotal = 0; 
+            
+            // Calculate end totals for Archer 1
+            for (let arrow = 1; arrow <= 3; arrow++) { 
+                const i = document.getElementById(`a1-e${end}-a${arrow}`); 
                 const s = i ? parseScore(i.value) : NaN; 
                 updateScoreCellColor(i); 
                 if (isNaN(s)) { 
-                    t1EndTotal += 0; 
+                    a1EndTotal += 0; 
                     if(i) i.style.backgroundColor = '#ffdddd'; 
                     overallInputsValid = false; 
                 } else { 
-                    t1EndTotal += s; 
+                    a1EndTotal += s; 
                 } 
             } 
-            for (let arrow = 1; arrow <= 6; arrow++) { 
-                const i = document.getElementById(`t2-e${end}-a${arrow}`); 
+            
+            // Calculate end totals for Archer 2
+            for (let arrow = 1; arrow <= 3; arrow++) { 
+                const i = document.getElementById(`a2-e${end}-a${arrow}`); 
                 const s = i ? parseScore(i.value) : NaN; 
                 updateScoreCellColor(i); 
                 if (isNaN(s)) { 
-                    t2EndTotal += 0; 
+                    a2EndTotal += 0; 
                     if(i) i.style.backgroundColor = '#ffdddd'; 
                     overallInputsValid = false; 
                 } else { 
-                    t2EndTotal += s; 
+                    a2EndTotal += s; 
                 } 
             } 
-            const t1TotalEl = document.getElementById(`t1-e${end}-total`); 
-            if (t1TotalEl) t1TotalEl.textContent = t1EndTotal; 
-            const t2TotalEl = document.getElementById(`t2-e${end}-total`); 
-            if (t2TotalEl) t2TotalEl.textContent = t2EndTotal; 
-            let t1SetPoints = 0, t2SetPoints = 0; 
+            
+            // Update end total displays
+            const a1TotalEl = document.getElementById(`a1-e${end}-total`); 
+            if (a1TotalEl) a1TotalEl.textContent = a1EndTotal; 
+            const a2TotalEl = document.getElementById(`a2-e${end}-total`); 
+            if (a2TotalEl) a2TotalEl.textContent = a2EndTotal; 
+            
+            // Calculate set points
+            let a1SetPoints = 0, a2SetPoints = 0; 
             const endComplete = isEndComplete(end); 
+            
             if (!matchOver && endComplete) { 
-                if (t1EndTotal > t2EndTotal) { 
-                    t1SetPoints = 2; 
-                    t2SetPoints = 0; 
-                } else if (t2EndTotal > t1EndTotal) { 
-                    t1SetPoints = 0; 
-                    t2SetPoints = 2; 
+                if (a1EndTotal > a2EndTotal) { 
+                    a1SetPoints = 2; 
+                    a2SetPoints = 0; 
+                } else if (a2EndTotal > a1EndTotal) { 
+                    a1SetPoints = 0; 
+                    a2SetPoints = 2; 
                 } else { 
-                    t1SetPoints = 1; 
-                    t2SetPoints = 1; 
+                    a1SetPoints = 1; 
+                    a2SetPoints = 1; 
                 } 
-                t1MatchScore += t1SetPoints; 
-                t2MatchScore += t2SetPoints; 
-                if (t1MatchScore >= 5 || t2MatchScore >= 5) { 
+                
+                a1MatchScore += a1SetPoints; 
+                a2MatchScore += a2SetPoints; 
+                
+                // Check if match is over (someone reached 6 or more set points)
+                if (a1MatchScore >= 6 || a2MatchScore >= 6) { 
                     matchOver = true; 
-                    winner = (t1MatchScore > t2MatchScore) ? 't1' : 't2'; 
+                    winner = (a1MatchScore > a2MatchScore) ? 'a1' : 'a2'; 
                 } 
             } else { 
-                t1SetPoints = '-'; 
-                t2SetPoints = '-'; 
+                a1SetPoints = '-'; 
+                a2SetPoints = '-'; 
             } 
-            const t1SetPtsEl = document.getElementById(`t1-e${end}-setpts`); 
-            if (t1SetPtsEl) t1SetPtsEl.textContent = t1SetPoints; 
-            const t2SetPtsEl = document.getElementById(`t2-e${end}-setpts`); 
-            if (t2SetPtsEl) t2SetPtsEl.textContent = t2SetPoints; 
+            
+            // Update set points displays
+            const a1SetPtsEl = document.getElementById(`a1-e${end}-setpts`); 
+            if (a1SetPtsEl) a1SetPtsEl.textContent = a1SetPoints; 
+            const a2SetPtsEl = document.getElementById(`a2-e${end}-setpts`); 
+            if (a2SetPtsEl) a2SetPtsEl.textContent = a2SetPoints; 
         } 
+        
+        // Handle shoot-off if needed
         let shootOffOccurred = false; 
         let shootOffComplete = false; 
-        if (!matchOver && t1MatchScore === 4 && t2MatchScore === 4) { 
+        
+        if (!matchOver && a1MatchScore === 5 && a2MatchScore === 5) { 
             shootOffOccurred = true; 
             if (shootOffRow) shootOffRow.style.display = 'table-row'; 
-            let t1SO = 0, t2SO = 0, soValid = true; 
-            for (let a = 1; a <= 3; a++) { 
-                const i1 = document.getElementById(`t1-so-a${a}`); 
-                const s1 = i1 ? parseScore(i1.value) : NaN; 
-                updateScoreCellColor(i1); 
-                if (isNaN(s1)) { 
-                    t1SO += 0; 
-                    if(i1) i1.style.backgroundColor = '#ffdddd'; 
-                    soValid = false; 
-                    overallInputsValid = false; 
-                } else { 
-                    t1SO += s1; 
-                } 
-                const i2 = document.getElementById(`t2-so-a${a}`); 
-                const s2 = i2 ? parseScore(i2.value) : NaN; 
-                updateScoreCellColor(i2); 
-                if (isNaN(s2)) { 
-                    t2SO += 0; 
-                    if(i2) i2.style.backgroundColor = '#ffdddd'; 
-                    soValid = false; 
-                    overallInputsValid = false; 
-                } else { 
-                    t2SO += s2; 
-                } 
+            
+            let a1SO = 0, a2SO = 0, soValid = true; 
+            
+            // Get shoot-off arrow values
+            const i1 = document.getElementById('a1-so-a1'); 
+            const s1 = i1 ? parseScore(i1.value) : NaN; 
+            updateScoreCellColor(i1); 
+            if (isNaN(s1)) { 
+                a1SO = 0; 
+                if(i1) i1.style.backgroundColor = '#ffdddd'; 
+                soValid = false; 
+                overallInputsValid = false; 
+            } else { 
+                a1SO = s1; 
             } 
-            const t1SoTotalEl = document.getElementById('t1-so-total'); 
-            if(t1SoTotalEl) t1SoTotalEl.textContent = t1SO; 
-            const t2SoTotalEl = document.getElementById('t2-so-total'); 
-            if(t2SoTotalEl) t2SoTotalEl.textContent = t2SO; 
+            
+            const i2 = document.getElementById('a2-so-a1'); 
+            const s2 = i2 ? parseScore(i2.value) : NaN; 
+            updateScoreCellColor(i2); 
+            if (isNaN(s2)) { 
+                a2SO = 0; 
+                if(i2) i2.style.backgroundColor = '#ffdddd'; 
+                soValid = false; 
+                overallInputsValid = false; 
+            } else { 
+                a2SO = s2; 
+            } 
+            
+            // Update shoot-off total displays
+            const a1SoTotalEl = document.getElementById('a1-so-total'); 
+            if(a1SoTotalEl) a1SoTotalEl.textContent = a1SO; 
+            const a2SoTotalEl = document.getElementById('a2-so-total'); 
+            if(a2SoTotalEl) a2SoTotalEl.textContent = a2SO; 
+            
             shootOffComplete = isShootOffComplete(); 
             let soWinnerTextMsg = "-"; 
+            
             if (shootOffComplete && soValid) { 
-                if (t1SO > t2SO) { 
-                    winner = 't1'; 
-                    soWinnerTextMsg = "T1 Wins SO"; 
+                if (a1SO > a2SO) { 
+                    winner = 'a1'; 
+                    soWinnerTextMsg = "A1 Wins SO"; 
                     matchOver = true; 
                     if (shootOffWinnerOverride) shootOffWinnerOverride = null; 
-                } else if (t2SO > t1SO) { 
-                    winner = 't2'; 
-                    soWinnerTextMsg = "T2 Wins SO"; 
+                } else if (a2SO > a1SO) { 
+                    winner = 'a2'; 
+                    soWinnerTextMsg = "A2 Wins SO"; 
                     matchOver = true; 
                     if (shootOffWinnerOverride) shootOffWinnerOverride = null; 
                 } else { 
                     soWinnerTextMsg = "SO Tied!"; 
-                    if (shootOffWinnerOverride === 't1') { 
-                        winner = 't1'; 
-                        soWinnerTextMsg += " T1 Wins (Closest)"; 
+                    if (shootOffWinnerOverride === 'a1') { 
+                        winner = 'a1'; 
+                        soWinnerTextMsg += " A1 Wins (Closest)"; 
                         matchOver = true; 
-                    } else if (shootOffWinnerOverride === 't2') { 
-                        winner = 't2'; 
-                        soWinnerTextMsg += " T2 Wins (Closest)"; 
+                    } else if (shootOffWinnerOverride === 'a2') { 
+                        winner = 'a2'; 
+                        soWinnerTextMsg += " A2 Wins (Closest)"; 
                         matchOver = true; 
                     } else { 
                         soWinnerTextMsg += " Judge Call Needed:"; 
@@ -715,17 +683,22 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
                 winner = null; 
                 matchOver = false; 
             } 
+            
             if (soWinnerText) soWinnerText.textContent = soWinnerTextMsg; 
         } else if (!shootOffOccurred) { 
             if (shootOffRow) shootOffRow.style.display = 'none'; 
             if (shootOffWinnerOverride) shootOffWinnerOverride = null; 
         } 
-        const t1MatchScoreEl = document.getElementById('t1-match-score'); 
-        if(t1MatchScoreEl) t1MatchScoreEl.textContent = t1MatchScore; 
-        const t2MatchScoreEl = document.getElementById('t2-match-score'); 
-        if(t2MatchScoreEl) t2MatchScoreEl.textContent = t2MatchScore; 
+        
+        // Update match score displays
+        const a1MatchScoreEl = document.getElementById('a1-match-score'); 
+        if(a1MatchScoreEl) a1MatchScoreEl.textContent = a1MatchScore; 
+        const a2MatchScoreEl = document.getElementById('a2-match-score'); 
+        if(a2MatchScoreEl) a2MatchScoreEl.textContent = a2MatchScore; 
+        
+        // Update match result
         if(matchOver) { 
-            updateMatchResult(winner, t1MatchScore, t2MatchScore); 
+            updateMatchResult(winner, a1MatchScore, a2MatchScore); 
         } else if (shootOffOccurred && !shootOffComplete) { 
             matchResultElement.textContent = "Shoot-Off Required - Enter SO Scores"; 
             matchResultElement.style.color = 'orange'; 
@@ -733,43 +706,55 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
             matchResultElement.textContent = "Shoot-Off Tied - Awaiting Judge Call"; 
             matchResultElement.style.color = 'orange'; 
         } else { 
-            updateMatchResult(null, t1MatchScore, t2MatchScore); 
+            updateMatchResult(null, a1MatchScore, a2MatchScore); 
         } 
+        
         saveDataToLocalStorage(); 
     }
 
     // --- Other Functions ---
-    function handleTieBreakerWin(winningTeam) { 
-        console.log(`Tie breaker: ${winningTeam} Wins`); 
-        shootOffWinnerOverride = winningTeam; 
+    function handleTieBreakerWin(winningArcher) { 
+        console.log(`Tie breaker: ${winningArcher} Wins`); 
+        shootOffWinnerOverride = winningArcher; 
         if (tieBreakerControls) tieBreakerControls.style.display = 'none'; 
-        let t1 = parseInt(document.getElementById('t1-match-score').textContent, 10); 
-        let t2 = parseInt(document.getElementById('t2-match-score').textContent, 10); 
+        let a1 = parseInt(document.getElementById('a1-match-score').textContent, 10); 
+        let a2 = parseInt(document.getElementById('a2-match-score').textContent, 10); 
         if (soWinnerText) { 
-            soWinnerText.textContent = `SO Tied! ${winningTeam === 't1' ? 'T1' : 'T2'} Wins (Closest)`; 
+            soWinnerText.textContent = `SO Tied! ${winningArcher === 'a1' ? 'A1' : 'A2'} Wins (Closest)`; 
         } 
-        updateMatchResult(winningTeam, t1, t2); 
+        updateMatchResult(winningArcher, a1, a2); 
         saveDataToLocalStorage(); 
     }
     
-    function updateMatchResult(winner, t1Score, t2Score) { 
-        const team1Name = t1SchoolInput?.value || "Team 1"; 
-        const team2Name = t2SchoolInput?.value || "Team 2"; 
+    function updateMatchResult(winner, a1Score, a2Score) { 
+        // Get archer names for display
+        let archer1Name = a1SchoolInput?.value || "Archer 1";
+        if (archer1Data && (archer1Data.first || archer1Data.last)) {
+            archer1Name = `${archer1Data.first} ${archer1Data.last}`.trim();
+        }
+        
+        let archer2Name = a2SchoolInput?.value || "Archer 2";
+        if (archer2Data && (archer2Data.first || archer2Data.last)) {
+            archer2Name = `${archer2Data.first} ${archer2Data.last}`.trim();
+        }
+        
         let message = ""; 
         let color = "black"; 
-        if (winner === 't1') { 
-            message = `${team1Name} Wins! (${t1Score} - ${t2Score})`; 
+        
+        if (winner === 'a1') { 
+            message = `${archer1Name} Wins! (${a1Score} - ${a2Score})`; 
             color = 'green'; 
-        } else if (winner === 't2') { 
-            message = `${team2Name} Wins! (${t2Score} - ${t1Score})`; 
+        } else if (winner === 'a2') { 
+            message = `${archer2Name} Wins! (${a2Score} - ${a1Score})`; 
             color = 'red'; 
         } else if (winner === 'tie') { 
-            message = `Match Tied after Shoot-Off Tie! (${t1Score} - ${t2Score})`; 
+            message = `Match Tied after Shoot-Off Tie! (${a1Score} - ${a2Score})`; 
             color = 'orange'; 
         } else { 
             message = "Match In Progress"; 
             color = 'black'; 
         } 
+        
         if(matchResultElement) { 
             matchResultElement.textContent = message; 
             matchResultElement.style.color = color;
@@ -792,6 +777,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         if (!cell || cell.tagName !== 'TD') return; 
         const scoreValue = inputElement.value.trim().toUpperCase(); 
         let scoreClass = 'score-empty'; 
+        
         if (scoreValue === 'X' || scoreValue === '10') { 
             scoreClass = 'score-x'; 
         } else if (scoreValue === '9') { 
@@ -815,6 +801,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         } else if (scoreValue === 'M') { 
             scoreClass = 'score-m'; 
         } 
+        
         cell.className = cell.className.replace(/score-\S+/g, '').trim(); 
         if (scoreClass !== 'score-empty') { 
             cell.classList.add(scoreClass); 
@@ -834,23 +821,23 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     
     function saveDataToLocalStorage() { 
         const data = { 
-            t1School: t1SchoolInput?.value, 
-            t1Gender: t1GenderInput?.value, 
-            t1Level: t1LevelInput?.value, 
-            t1Group: t1GroupInput?.value, 
-            t2School: t2SchoolInput?.value, 
-            t2Gender: t2GenderInput?.value, 
-            t2Level: t2LevelInput?.value, 
-            t2Group: t2GroupInput?.value, 
-            t1ArcherNames: team1ArcherNames, 
-            t2ArcherNames: team2ArcherNames, 
+            a1School: a1SchoolInput?.value, 
+            a1Gender: a1GenderInput?.value, 
+            a1Level: a1LevelInput?.value, 
+            a2School: a2SchoolInput?.value, 
+            a2Gender: a2GenderInput?.value, 
+            a2Level: a2LevelInput?.value, 
+            a1Data: archer1Data, 
+            a2Data: archer2Data, 
             scores: {}, 
             shootOffWinnerOverride: shootOffWinnerOverride 
         }; 
+        
         const scoreInputsForSave = document.querySelectorAll('table input[type="text"][id*="-a"]'); 
         scoreInputsForSave.forEach(input => { 
             if(input) data.scores[input.id] = input.value; 
         }); 
+        
         try { 
             const key = getSessionKey(); 
             localStorage.setItem(key, JSON.stringify(data)); 
@@ -889,7 +876,8 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
     function resetFormAndStorage() { 
         const key = getSessionKey(); 
         console.log("Resetting form for key:", key); 
-        if (confirm(`Are you sure you want to start a new round? All current scores will be lost.`)) { 
+        if (confirm(`Are you sure you want to start a new match? All current scores will be lost.`)) { 
+            // Clear all inputs
             const inputs = document.querySelectorAll('.match-info input, .match-info select, table input'); 
             inputs.forEach(input => { 
                 if(input){ 
@@ -900,9 +888,15 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
                     } 
                 } 
             }); 
-            team1ArcherNames = [{first:'', last:''}, {first:'', last:''}, {first:'', last:''}]; 
-            team2ArcherNames = [{first:'', last:''}, {first:'', last:''}, {first:'', last:''}]; 
+            
+            // Reset archer data
+            archer1Data = {first:'', last:''}; 
+            archer2Data = {first:'', last:''}; 
+            
+            // Clear highlighting
             clearHighlights(); 
+            
+            // Reset score displays
             const displays = document.querySelectorAll('.score-display'); 
             displays.forEach(display => { 
                 if(display) { 
@@ -910,22 +904,30 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
                     else display.textContent = ''; 
                 } 
             }); 
-            if(document.getElementById('t1-match-score')) document.getElementById('t1-match-score').textContent = '0'; 
-            if(document.getElementById('t2-match-score')) document.getElementById('t2-match-score').textContent = '0'; 
+            
+            if(document.getElementById('a1-match-score')) document.getElementById('a1-match-score').textContent = '0'; 
+            if(document.getElementById('a2-match-score')) document.getElementById('a2-match-score').textContent = '0'; 
+            
             if(matchResultElement) { 
                 matchResultElement.textContent = 'Enter Scores Above'; 
                 matchResultElement.style.color = 'black'; 
             } 
+            
+            // Hide shoot-off row
             if (shootOffRow) shootOffRow.style.display = 'none'; 
             shootOffWinnerOverride = null; 
             if (tieBreakerControls) tieBreakerControls.style.display = 'none'; 
             if (soWinnerText) soWinnerText.textContent = '-'; 
+            
+            // Clear localStorage
             try { 
                 localStorage.removeItem(key); 
                 console.log("localStorage cleared."); 
             } catch (e) { 
                 console.error("Error clearing localStorage:", e); 
             } 
+            
+            // Show setup modal
             setDefaultSetupModalValues(); 
             if (setupModal) setupModal.style.display = 'block'; 
             if (scorecardMain) scorecardMain.style.display = 'none'; 
@@ -933,18 +935,7 @@ import { initializeDefaultScores, getFriendlyDate } from './score-core.js';
         } 
     }
 
-    // --- Run the code ---
-    function init() {
-        initDOMReferences();
-
-        initializeApp();
-    }
-
     // --- Run Initialization ---
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
+    initializeApp();
 
 })(); // --- End IIFE ---

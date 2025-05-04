@@ -1,0 +1,690 @@
+/* ============================================================================
+   TEAM ROUND CSS - OAS Archery Scorecard
+   Complete styling for team_round.html with all enhancements
+   ============================================================================ */
+
+/* ======================
+   1. GENERAL LAYOUT
+   ====================== */
+
+/* Left-align main title with spacing */
+#scorecard-main > h1 {
+    text-align: left;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    color: #333;
+}
+
+/* Date display in the top right corner */
+#current-date-display {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 0.85em;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+/* ======================
+   2. SETUP MODAL STYLES
+   ====================== */
+
+/* Basic Modal Container - overlays the entire screen */
+.setup-modal {
+    display: none;
+    position: fixed;
+    z-index: 1500;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+
+/* Modal Content Box - the white box in the center */
+.setup-modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    width: 90%;
+    max-width: 650px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Modal Title */
+#team-setup-modal h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+/* Team Sections (fieldsets) */
+#team-setup-modal fieldset {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Team Section Titles (legends) */
+#team-setup-modal legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 0 10px;
+    margin-left: 10px;
+    color: #333;
+}
+
+/* Team Information Row - School/Gender/Level/Group */
+.modal-team-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #ccc;
+}
+
+/* Labels in the team info row */
+.modal-team-info-row label {
+    white-space: nowrap;
+    margin-right: 5px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+/* Input fields and dropdowns in team info row */
+.modal-team-info-row input[type="text"],
+.modal-team-info-row select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+/* Width constraints for specific fields */
+#setup-t1-school,
+#setup-t2-school {
+    width: 70px;
+    text-transform: uppercase;
+}
+
+#setup-t1-gender,
+#setup-t2-gender,
+#setup-t1-level,
+#setup-t2-level {
+    width: 70px;
+}
+
+#setup-t1-group,
+#setup-t2-group {
+    width: 70px;
+}
+
+/* Archer Name Row Layout */
+.modal-archer-name-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Archer Labels (Archer 1:, etc.) */
+.modal-archer-name-row label {
+    width: 80px;
+    font-size: 0.9em;
+    margin-right: 10px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+/* Split name fields container */
+.name-fields {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+}
+
+/* Each name input field */
+.name-fields input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+    text-align: left;
+}
+
+/* Start Scoring Button Container */
+#team-setup-form div[style*="text-align: center"] {
+    margin-top: 20px;
+}
+
+/* Start Scoring Button */
+#setup-start-scoring-button {
+    padding: 12px 30px;
+    font-size: 1.1em;
+    background-color: #00a651;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#setup-start-scoring-button:hover {
+    background-color: #008c44;
+}
+
+/* ======================
+   3. MATCH INFO DISPLAY
+   ====================== */
+
+/* Match Info Display with New Round Button */
+.match-info-display {
+    padding: 8px;
+    margin-bottom: 8px;
+    background-color: #eee;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Team summary text */
+.match-info-display .team-summary,
+#t1-summary, #t2-summary {
+    font-weight: bold;
+    flex: 1;
+    text-align: center;
+}
+
+/* New Round button */
+#new-round-button {
+    padding: 6px 12px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-right: 10px;
+}
+
+#new-round-button:hover {
+    background-color: #c9302c;
+}
+
+/* Edit setup button */
+.match-info-display button#edit-setup-button {
+    margin-left: 10px;
+    font-size: 0.8em;
+    padding: 2px 5px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* ======================
+   4. SCORECARD TABLE STYLES
+   ====================== */
+
+/* Table Wrapper for horizontal scrolling */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+/* Main scorecard table */
+#team_round_table {
+    min-width: 800px;
+    width: auto;
+    border: none;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
+/* Top Header Row (Team names) */
+#team_round_table thead tr:first-child th {
+    background-color: #6c757d;
+    color: white;
+    border-bottom: 2px solid #495057;
+    height: 35px;
+    padding: 8px 5px;
+    font-size: 0.9em;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* Darker color for Team 2 header */
+#team_round_table th#t2-header-name {
+    background-color: #5a6268;
+}
+
+/* Archer names display row */
+#archer-names-row td {
+    font-size: 0.75em;
+    font-weight: normal;
+    padding: 4px 2px;
+    background-color: #e9ecef;
+    color: #495057;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-color: #adb5bd;
+    white-space: normal;
+    line-height: 1.2;
+    height: auto;
+    min-height: 30px;
+    vertical-align: middle;
+}
+
+/* Align archer names to the left */
+#t1-archer-names-display, 
+#t2-archer-names-display {
+    text-align: left !important;
+    padding-left: 10px !important;
+}
+
+/* Arrow Label Row (A1, A2...) */
+#team_round_table thead tr:last-child th {
+    background-color: #adb5bd;
+    color: #333;
+    font-size: 0.75em;
+    padding: 5px 2px;
+    border-color: #adb5bd #dee2e6;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* General cell styles */
+#team_round_table td {
+    padding: 0;
+    border-color: #e9ecef;
+    height: 40px;
+    vertical-align: middle;
+}
+
+/* Row striping and hover effects */
+#team_round_table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#team_round_table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Arrow score input styling */
+#team_round_table input[type="text"][id*="-a"] {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+    box-sizing: border-box;
+    border-radius: 0;
+    color: inherit;
+    cursor: pointer;
+}
+
+#team_round_table input[type="text"][id*="-a"]:focus {
+    outline: 2px solid #007bff;
+}
+
+/* Calculated score display cells */
+.score-display {
+    font-weight: bold;
+    min-width: 40px;
+    background-color: #e9ecef;
+    padding: 8px 5px;
+    vertical-align: middle;
+}
+
+/* Match Score alignment fix */
+#team_round_table tfoot tr:first-child td:first-child {
+    text-align: right;
+    padding-right: 15px;
+}
+
+/* Shoot-Off Row Styling */
+#shoot-off {
+    background-color: #fffacd;
+    font-style: italic;
+}
+
+/* Shoot-Off Winner Cell & Controls */
+#so-winner-cell {
+    min-width: 150px;
+    vertical-align: middle;
+}
+
+#so-winner-text {
+    display: inline-block;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.tie-breaker-controls {
+    display: none;
+    margin-left: 5px;
+    white-space: nowrap;
+}
+
+.tie-breaker-controls button {
+    padding: 3px 6px;
+    font-size: 0.8em;
+    margin-left: 3px;
+    cursor: pointer;
+    border: 1px solid #6c757d;
+    background-color: #f8f9fa;
+    color: #495057;
+    border-radius: 3px;
+}
+
+.tie-breaker-controls button:hover {
+    background-color: #e2e6ea;
+}
+
+/* Footer Row Styling */
+#team_round_table tfoot td {
+    font-weight: bold;
+    background-color: #dee2e6;
+    padding: 8px 5px;
+}
+
+/* Match result display */
+#match-result {
+    padding: 12px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* ======================
+   5. SCORE CELL STYLING
+   ====================== */
+
+/* Yellow for 10s, 9s, and Xs */
+td.score-x, td.score-10, td.score-9 {
+    background-color: #FFCC00;
+    color: black;
+}
+
+/* Red for 8s and 7s */
+td.score-8, td.score-7 {
+    background-color: #DD0000;
+    color: white;
+}
+
+/* Blue for 6s and 5s */
+td.score-6, td.score-5 {
+    background-color: #66CCFF;
+    color: black;
+}
+
+/* Black for 4s and 3s */
+td.score-4, td.score-3 {
+    background-color: #333333;
+    color: white;
+}
+
+/* White for 2s and 1s */
+td.score-2, td.score-1 {
+    background-color: #FFFFFF;
+    color: black;
+}
+
+/* White with grey text for misses */
+td.score-m {
+    background-color: #FFFFFF;
+    color: #adb5bd;
+}
+
+/* Default/empty cells */
+td.score-empty {
+    background-color: transparent;
+}
+
+/* ======================
+   6. KEYPAD STYLES
+   ====================== */
+
+/* Main keypad container */
+#score-keypad {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+    z-index: 2500;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+/* General keypad button style */
+#score-keypad button {
+    padding: 15px 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #5a6268;
+    color: white;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#score-keypad button:active {
+    background-color: #495057;
+}
+
+/* Score value button colors - match table cell colors */
+#score-keypad button[data-value="X"],
+#score-keypad button[data-value="10"],
+#score-keypad button[data-value="9"] {
+    background-color: #FFCC00;
+    color: black;
+    border-color: #cca300;
+}
+
+#score-keypad button[data-value="8"],
+#score-keypad button[data-value="7"] {
+    background-color: #DD0000;
+    color: white;
+    border-color: #b00000;
+}
+
+#score-keypad button[data-value="6"],
+#score-keypad button[data-value="5"] {
+    background-color: #66CCFF;
+    color: black;
+    border-color: #4aa0cc;
+}
+
+#score-keypad button[data-value="4"],
+#score-keypad button[data-value="3"] {
+    background-color: #333333;
+    color: white;
+    border-color: #1a1a1a;
+}
+
+#score-keypad button[data-value="2"],
+#score-keypad button[data-value="1"] {
+    background-color: #FFFFFF;
+    color: black;
+    border-color: #cccccc;
+}
+
+#score-keypad button[data-value="M"] {
+    background-color: #FFFFFF;
+    color: #adb5bd;
+    border-color: #cccccc;
+}
+
+/* Action button colors */
+#score-keypad button.keypad-action {
+    background-color: #ffc107;
+    color: black;
+}
+
+#score-keypad button.keypad-action-next {
+    background-color: #28a745;
+    color: white;
+}
+
+#score-keypad button.keypad-action-back {
+    background-color: #fd7e14;
+    color: white;
+}
+
+#score-keypad button.keypad-action-close {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Hide the original controls/buttons */
+.controls {
+    display: none !important;
+}
+#calculate-button {
+    display: none !important;
+}
+#reset-button {
+    display: none !important;
+}
+
+/* ======================
+   7. RESPONSIVE ADJUSTMENTS
+   ====================== */
+
+/* For mobile screens */
+@media (max-width: 600px) {
+    /* Setup modal adjustments */
+    .modal-team-info-row {
+        flex-wrap: wrap;
+    }
+    
+    .name-fields {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    #team-setup-modal fieldset {
+        padding: 10px;
+    }
+    
+    /* Main content adjustments */
+    #scorecard-main > h1 {
+        margin-left: 10px;
+        font-size: 1.2em;
+    }
+    
+    #current-date-display {
+        top: 8px;
+        right: 10px;
+        font-size: 0.75em;
+    }
+    
+    /* Table adjustments */
+    #team_round_table {
+        min-width: 650px;
+    }
+    
+    #team_round_table input[type="text"][id*="-a"] {
+        width: 30px;
+        font-size: 0.85em;
+    }
+    
+    #so-winner-cell {
+        min-width: 100px;
+    }
+    
+    .tie-breaker-controls {
+        white-space: normal;
+        margin-left: 0;
+        margin-top: 3px;
+    }
+    
+    /* Archer names display adjustment */
+    #archer-names-row td {
+        font-size: 0.65em;
+    }
+    
+    /* Match info display adjustments */
+    .match-info-display {
+        flex-wrap: wrap;
+    }
+    
+    #new-round-button {
+        margin-bottom: 5px;
+    }
+}
+
+/* For landscape mode on small screens */
+@media (orientation: landscape) and (max-height: 500px) {
+    body {
+        padding: 5px;
+    }
+    
+    h1 {
+        font-size: 1.1em;
+        margin: 5px 0;
+    }
+    
+    #current-date-display {
+        top: 8px;
+        right: 10px;
+    }
+    
+    hr {
+        margin: 10px 0;
+    }
+    
+    .table-wrapper {
+        margin-bottom: 10px;
+    }
+    
+    #team_round_table th,
+    #team_round_table td {
+        height: 35px;
+    }
+    
+    #team_round_table input[type="text"][id*="-a"] {
+        font-size: 0.9em;
+    }
+    
+    /* Keypad adjustments for landscape */
+    #score-keypad {
+        padding: 5px;
+        gap: 5px;
+    }
+    
+    #score-keypad button {
+        padding: 10px 5px;
+        font-size: 1em;
+    }
+}
